@@ -1,0 +1,162 @@
+body{
+  background-color: rgb(217, 241, 250);
+}
+.modal{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 200px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5) !important;
+  }
+  .modal-content, .modal-content-dificil, .modal-perder, .modal-ganar{
+    padding: 10px;
+    width: 30% !important;
+    height: auto;
+    margin: 0 auto;
+    background-color: white !important;
+    border-radius: 20px;
+  }
+
+  .palabrascontenido{
+    display: inline-block;
+    width: 100%;
+  }
+  .palabras{
+    display: inline-block;
+    width: auto;
+  }
+#contenedor-imagen {
+    position: relative;
+    width: 600px;
+    height: 400px;
+  }
+
+  #contenedor-imagen img {
+    border: 1px solid rgb(236, 236, 236);
+  }
+
+  .image{
+      display: inline-block;
+      background-color: rgb(233, 233, 233);
+  }
+  .imagenesdificil, .textosdificil{
+    height: 200px;
+    width: 200px;
+    display: inline-block;
+    background-color: rgb(233, 233, 233);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position-y: center;
+    vertical-align: top;
+    margin-bottom: 5px;
+    position: relative;
+  }
+  .habitantesycapital{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #imagenmodal{
+    height: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
+
+  .contenedorpaisesypuntuaciones{
+    display: none;
+  }
+  .contenedorpaisesacertados{
+    border: 1px rgb(184, 184, 184) solid;
+  }
+  .titulopaisesacertados{
+    padding-top: 10px;
+  }
+  .campo-sesion{
+    border-radius: 20px !important;
+    height: 30px;
+    width: 250px;
+    border: 0px;
+    background-color: rgb(226, 226, 226);
+    padding-left: 10px;
+  }
+  .btn-iniciar{
+    border-radius: 20px !important;
+    height: 30px;
+    width: 250px;
+    background-color: rgb(165, 220, 241);
+    border: 0px;
+  }
+
+  .mensaje-login{
+    background-color: rgb(165, 220, 241);
+    display: flex !important;
+    align-items: center !important;
+  }
+
+
+  .textoeditar{
+    font-size: 15px;
+  }
+  .form-inicio{
+    margin: 0 auto;
+  }
+
+  .boton{
+    background-color: rgb(165, 220, 241);
+    border: 0px;
+    border-radius: 20px !important;
+    height: 30px;
+    width: 250px;
+  }
+  .siguiente{
+    background-color: rgb(131, 224, 131);
+  }
+  .pista{
+    background-color: rgb(255, 211, 129);
+  }
+  .modal-content{
+    width: 100%;
+    text-align: center;
+  }
+  .cerrar, .cerrarerror{
+    text-align: right;
+  }
+  .volverinicio, .volverMenu{
+    background-color: rgb(196, 196, 196);
+  }
+  .volverIntentar{
+    background-color: rgb(131, 224, 131);
+  }
+  button:active{
+    transform: scale(0.9);
+  }
+  #tablamarcador{
+    margin: 0 auto;
+    font-size: 15px;
+  }
+
+  .bodylogin{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .btncerrarsesion{
+    background-color: rgb(255, 82, 82);
+  }
+
+
+
+
+
+
