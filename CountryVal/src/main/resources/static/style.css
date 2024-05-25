@@ -2,7 +2,7 @@ body{
   background-color: rgb(217, 241, 250);
 }
 .modal{
-    display: none;
+    display: block;
     position: fixed;
     z-index: 1;
     padding-top: 200px;
