@@ -2,11 +2,20 @@ let usuarioconectado = false
 let emailUsuario = ""
 let contrasenaUsuario = "" 
 let nombreUsuario = ""
+let recordsUsuario = {}
+let rankingglobal = []
+
+recuperarUsuarioLocalStorage()
 
 ////// PAGINAS ///////
 function Inicio(){
+    
     let editar = false
     return {
+        oninit:()=>{
+            consultarRecord()
+            rankingGlobal()
+        },
         view:()=> [
                    m("div", {"class":"ui center aligned segment"},
                      m("h1", {"class":"ui header saludar"},
@@ -20,12 +29,28 @@ function Inicio(){
                             m("div", {"class":"ui center aligned segment"},
                             [
                                 m("h3",
-                                "Estadisticas Personales"
+                                    "Estadisticas Personales"
                                 ),
-                                m("h5", {"class":"puntosfacil"}),
-                                m("h5", {"class":"puntosmedio"}),
-                                m("h5", {"class":"puntosdificil"}),
-                                m("h5", {"class":"puntosglobal"}),
+                                m("h4", 
+                                    {"class":"puntosfacil"},
+                                    "Nivel Fácil", 
+                                        m("p", recordsUsuario.recordfacil+ " Puntos")
+                                ),
+                                m("h4", 
+                                    {"class":"puntosmedio"},
+                                    "Nivel Medio", 
+                                        m("p", recordsUsuario.recordmedio+ " Puntos")
+                                ),
+                                m("h4", 
+                                    {"class":"puntosdificil"},
+                                    "Nivel Difícil", 
+                                        m("p", recordsUsuario.recorddificil+ " Puntos")
+                                ),
+                                m("h4", 
+                                    {"class":"puntostotales"},
+                                    "Récord Global", 
+                                        m("p", recordsUsuario.totalrecord + " Puntos")
+                                ),
                                 m("br"),
                                 m("button", {
                                     onclick:()=>{
@@ -38,7 +63,13 @@ function Inicio(){
                                 m("br"),
                                 m("br"),
                                 m("p", {"class":"mensajeeditar"}),
-                                m("button", {"class":"btncerrarsesion boton"},
+                                m("button", {
+                                    "class":"btncerrarsesion boton",
+                                    onclick:()=>{
+                                        localStorage.removeItem('usuario')
+                                        location.href = "./"
+                                    }
+                                },
                                 "Cerrar Sesion"
                                 )
                             ]
@@ -46,6 +77,7 @@ function Inicio(){
                         ),
                         m("div", {"class":"ten wide column"},
                             [
+                            ///BOTONES NIVELES
                             m("div", {"class":"ui center aligned segment"},
                                 [
                                 m("div", {"class":"two wide column"},
@@ -82,6 +114,7 @@ function Inicio(){
                                 )
                                 ]
                             ),
+                            ///GUÍA Y REGLAS DEL JUEGO
                             m("div", {"class":"ui center aligned segment"},
                                 [
                                 m("h2",
@@ -149,7 +182,19 @@ function Inicio(){
                                 m("h3",
                                 "Ranking Global"
                                 ),
-                                m("table", {"id":"tablamarcador"})
+                                m("table", 
+                                
+                                    {"id":"tablamarcador"},
+                                    m("th", "Nombre de Usuario"),
+                                    m("th", "Puntos"),
+                                    
+                                    rankingglobal.map(datos => 
+                                        m("tr", 
+                                            m("td", datos.nombreusuario),
+                                            m("td", datos.record)
+                                        )
+                                    )
+                                )
                             ]
                             )
                         )
@@ -280,7 +325,7 @@ function Login(){
                                                 "class":"btn-iniciar boton",
                                                 "name":"btn-iniciar",
                                                 onclick:()=>{
-                                                    consultarInicioSesion(inputemail.value, inputcontrasena.value)
+                                                    InicioSesion(inputemail.value, inputcontrasena.value)
                                                 }
                                             }, 
                                                 "Iniciar Sesión"
@@ -789,7 +834,6 @@ function Nivel () {
                 )
                 : null
             ]
-        
   }
 
     
@@ -1049,14 +1093,7 @@ function Nivel () {
     
 }
 
-
-
-
-
-
-
-
-
+/*
 function NivelDificil () {
     return {
         view:()=>[
@@ -1343,24 +1380,24 @@ function NivelMedio () {
       ]
   }
 }
-
+*/
 
 /////// ENRUTAMIENTO ///////
 const routes = {
   "/": {
-      view: ()=> m(Login)
+      view: ()=> usuarioconectado ? m(Inicio) : m(Login)
   },
   "/inicio": {
-      view:()=> m(Inicio)
+      view:()=> usuarioconectado ? m(Inicio) : location.href = "./"
   },
   "/nivelfacil": {
-      view:()=> m(Nivel, {nivel: "Fácil"})
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Fácil"}) : location.href = "./"
   },
   "/nivelmedio": {
-      view:()=> m(Nivel, {nivel: "Medio"})
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Medio"}) : location.href = "./"
   },
   "/niveldificil": {
-      view:()=> m(Nivel, {nivel: "Difícil"})
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Difícil"}) : location.href = "./"
   }
 }
 
@@ -1369,7 +1406,7 @@ m.route(document.body, "/", routes)
 
 
 ////// FUNCIONES ///////
-function consultarInicioSesion(email, contrasena) {
+function InicioSesion(email, contrasena) {
     m.request({
         method: "GET",
         url:'/api/usuarios/'+email
@@ -1377,10 +1414,7 @@ function consultarInicioSesion(email, contrasena) {
     .then(usuarios => {
         // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
         if(email == usuarios.email && contrasena == usuarios.contrasena){
-            usuarioconectado = true
-            emailUsuario = usuarios.email
-            contrasenaUsuario = usuarios.contrasena 
-            nombreUsuario = usuarios.nombreUsuario
+            saveUsuarioLocalStorage(usuarios.email, usuarios.contrasena, usuarios.nombreusuario)
             location.href = "./index.html#!inicio"
         }
         else {
@@ -1444,6 +1478,78 @@ function insertarUsuario(email, nombreusuario, contrasena){
 function insertarPuntuacion(){
 
 }
+
+function consultarRecord(){
+    m.request({
+        method: "GET",
+        url:'/api/records/' + emailUsuario,
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(records => {
+        recordsUsuario = records
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+function saveUsuarioLocalStorage(email, nombreusuario, contrasena){
+    var usuario = {
+        email: email,
+        nombreusuario: nombreusuario,
+        contrasena: contrasena
+    };
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    console.log("Usuario guardado en localStorage:", usuario);
+}
+
+function recuperarUsuarioLocalStorage() {
+    var usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (usuario) {
+        usuarioconectado = true
+        emailUsuario = usuario.email
+        contrasenaUsuario = usuario.contrasena
+        nombreUsuario = usuario.nombreusuario
+        console.log("Usuario cargado desde localStorage:", usuario);
+    }
+}
+
+function rankingGlobal(){
+    m.request({
+        method: "GET",
+        url:'/api/usuarios',
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(usuarios => {
+        usuarios.map(usuario => {
+            m.request({
+                method: "GET",
+                url:'/api/records/' + usuario.email,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(records => {
+                console.log(records)
+                rankingglobal.push({nombreusuario: usuario.nombreusuario, record: records.totalrecord})
+            })
+            .catch(function(error) {
+                console.log("Error al guardar el usuario:", error);
+            })
+        })
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+
+
+
 
 
 
