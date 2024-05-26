@@ -369,6 +369,8 @@ function Nivel () {
     let contador = 0;
     let cerrado = true;
     let fin = false;
+    let contenedorpaisespuntuaciones = false
+    
 
   return {
         oncreate:()=> {
@@ -393,13 +395,13 @@ function Nivel () {
                                         "Puntos en ronda actual: "
                                     ),
                                     m("p", {"class":"puntosronda"}, 
-                                        "60 puntos"
+                                        puntosporronda + " puntos"
                                     ),
                                     m("h4", 
                                         "Puntos en partida: "
                                     ),
                                     m("p", {"class":"puntospartida"}, 
-                                        "0 puntos"
+                                        puntos + " puntos"
                                     )
                                 ]
                             )
@@ -535,6 +537,8 @@ function Nivel () {
                                                                     inputanterior.focus();
                                                                 }
                                                             }
+                                                            
+                                                            letrasUsuario[index]= e.target.value
                                                         }
                                                     }
                                                 },
@@ -671,7 +675,7 @@ function Nivel () {
                                 "Has Perdido!"
                             ),
                             m("h3", 
-                                "Nivel: Fácil"
+                                "Nivel: " + attrs.nivel
                             ),
                             m("h3", {"class":"puntuacionObtenida"}, 
                                 "Puntuación Obtenida: "
@@ -708,22 +712,39 @@ function Nivel () {
                                 "Enhorabuena has acertado todos!"
                             ),
                             m("h3", 
-                                "Nivel: Fácil"
+                                "Nivel: " + attrs.nivel
                             ),
                             m("h3", {"class":"puntuacionObtenida"}, 
-                                "Puntuación Obtenida: "
+                                "Puntuación Obtenida: " + puntos + " Puntos"
                             ),
                             m("h3", {"class":"puntuacionRecord"}, 
-                                "Récord Puntuación: "
+                                "Récord Puntuación: " 
                             ),
-                            m("div", {"class":"contenedorpaisesacertados"},
+                            m("div", {
+                                "class":"contenedorpaisesacertados", 
+                                style: {cursor: "pointer"}, 
+                                onclick:()=>{
+                                    contenedorpaisespuntuaciones = !contenedorpaisespuntuaciones
+                                }
+                            },
                                 [
                                     m("h3", {"class":"titulopaisesacertados"}, 
                                         "Ver paises acertados"
                                     ),
-                                    m("div", {"class":"contenedorpaisesypuntuaciones"}, 
-                                        m("p", {"class":"paisesypuntuaciones"})
-                                    )
+                                    m("div", {
+                                        "class":"contenedorpaisesypuntuaciones",
+                                        style: {
+                                            height: "content",
+                                            display: contenedorpaisespuntuaciones ? "block" : "none"
+                                        },
+                                        
+                                    }, 
+                                        
+                                        Object.keys(paisesmostrados).map(pais =>{
+                                            return m("p", pais + ": " + paisesmostrados[pais].Puntuaje + " Puntos")
+                                        }),
+                                    ),
+                                    
                                 ]
                             ),
                             m("br"),
@@ -734,14 +755,31 @@ function Nivel () {
                                 "Volver al Menú Principal"
                             )
                         ]
-                    )
+                    ),
+                    
                 )
                 : null
             ]
         
   }
 
+    
+
+   
+
     function FuncionalidadLvlFacil(){
+
+
+        document.addEventListener('keypress', function (e) {
+            if (fin == false) {
+                if (e.which == 13) {
+                    letrasUsuario.map(l => {respuesta += l})
+                    perder(respuesta);
+                } else if (e.which == 32) {
+                    siguientenivel();
+                }
+            }
+        });
         
         pais();
     
@@ -767,15 +805,7 @@ function Nivel () {
     // document.querySelector(".pista").addEventListener("click", pista);
 
     // Si pulsas el enter te comprueba y si pulsas el espacio te lleva al siguiente nivel
-    document.addEventListener('keypress', function (e) {
-        if (fin == false) {
-            if (e.which == 13) {
-                perder();
-            } else if (e.which == 32) {
-                siguientenivel();
-            }
-        }
-    });
+    
 
     // Desplegable de paises en las puntuaciones de ganar y perder
     // document.getElementsByClassName(".contenedorpaisesacertados").addEventListener("click", function () {
@@ -857,8 +887,8 @@ function Nivel () {
             numaleatorio = Math.floor(Math.random() * 50) + 1;
             puntosporronda = 60;
             contador = 0;
+            letrasUsuario = []
             pistasutilizadas = 0;
-            document.querySelector(".puntosronda").innerHTML = "60 puntos";
             pais();
         }
     }
@@ -872,7 +902,6 @@ function Nivel () {
         .then(paises => {
             for (let i = 0; i < paises.length; i++) {
                 if (paises[i].id_pais == numaleatorio) {
-                    console.log(paises[i])
                     nombrepais = paises[i].nombre.toUpperCase();
                     idpais = paises[i].id_pais;
                     capitalpais = paises[i].capital;
@@ -881,10 +910,12 @@ function Nivel () {
                     siluetapais = paises[i].silueta;
                     famosopais = paises[i].persona_Famosa;
                     banderapais = paises[i].bandera;
+                    console.log(nombrepais)
                 }
             }
+
             
-            // Compruebo si está repetido el pais para mostrarlo
+        // Compruebo si está repetido el pais para mostrarlo
         // if (nombrepais.toUpperCase() in paisesmostrados) {
         //     numaleatorio = Math.floor(Math.random() * 50) + 1;
         //     pais();
@@ -910,21 +941,21 @@ function Nivel () {
 
     function puntuaciones() {
         // Ventana modal con las puntuaciones de la partida cuando pierdes
-        almacenardatos(puntos);
-        document.querySelector(".puntuacionObtenida").innerHTML += puntos + " Puntos";
-        document.querySelector(".puntuacionRecord").innerHTML += puntos + " Puntos";
+        //almacenardatos(puntos);
+        //document.querySelector(".puntuacionObtenida").innerHTML += puntos + " Puntos";
+        //document.querySelector(".puntuacionRecord").innerHTML += puntos + " Puntos";
         for (let key in paisesmostrados) {
             if (paisesmostrados.hasOwnProperty(key)) {
-                document.querySelector(".paisesypuntuaciones").innerHTML += key + ": " + paisesmostrados[key].Puntuaje + " Puntos<br>";
+                //document.querySelector(".paisesypuntuaciones").innerHTML += key + ": " + paisesmostrados[key].Puntuaje + " Puntos<br>";
             }
         }
-        document.querySelector(".volverIntentar").addEventListener("click", function () {
-            location.href = "../html_css/nivelfacil.html";
-        });
-        document.querySelector(".volverMenu").addEventListener("click", function () {
-            puntos = 0;
-            location.href = "../html_css/inicio.html";
-        });
+        // document.querySelector(".volverIntentar").addEventListener("click", function () {
+        //     location.href = "../html_css/nivelfacil.html";
+        // });
+        // document.querySelector(".volverMenu").addEventListener("click", function () {
+        //     puntos = 0;
+        //     location.href = "../html_css/inicio.html";
+        // });
     }
 
     function perder(respuesta) {
@@ -963,12 +994,12 @@ function Nivel () {
         // Si está mal puesto el nombre por el usuario te resta puntos
         if (resuelto != true) {
             puntosporronda -= 10;
-            document.querySelector(".puntosronda").innerHTML = puntosporronda + " puntos";
         }
-        if (Object.keys(paisesmostrados).length == 50) {
+        if (Object.keys(paisesmostrados).length == 2) {
+            console.log(paisesmostrados.length)
             fin = true;
             puntuaciones();
-            document.querySelector("#ventanaModalGanar").style.display = "block";
+            modalganar = true
         }
         //focusinputvacio();
         m.redraw()
@@ -982,13 +1013,14 @@ function Nivel () {
             paisesmostrados[nombrepais] = { "Adivinado": true, "Puntuaje": puntosporronda };
             resuelto = true;
             puntos += puntosporronda;
-            document.querySelector(".puntospartida").innerHTML = puntos + " puntos";
             console.log(paisesmostrados, paisesmostrados[nombrepais].Adivinado, paisesmostrados[nombrepais].Puntuaje)
         }
     }
 
     
 }
+
+
 
 
 

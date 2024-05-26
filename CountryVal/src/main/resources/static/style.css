@@ -73,9 +73,6 @@ body{
     margin: auto;
   }
 
-  .contenedorpaisesypuntuaciones{
-    display: none;
-  }
   .contenedorpaisesacertados{
     border: 1px rgb(184, 184, 184) solid;
   }
