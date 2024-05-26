@@ -12,33 +12,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.countryval.CountryVal.entity.Usuario;
-import com.countryval.CountryVal.service.UsuarioService;
+import com.countryval.CountryVal.entity.Record;
+import com.countryval.CountryVal.service.RecordService;
 
 @RestController
-@RequestMapping(path="api/usuarios")
-public class UsuarioController {
-    
+@RequestMapping(path="api/records")
+public class RecordController {
     @Autowired
-    private UsuarioService usuarioService;
+    private RecordService recordService;
 
     @GetMapping
-    public List<Usuario> getAll(){
-        return usuarioService.getUsuarios(); 
+    public List<Record> getAll(){
+        return recordService.getRecords(); 
     }
 
     @GetMapping("/{email}")
-    public Optional<Usuario> getAllBId(@PathVariable("email") String email){
-        return usuarioService.getUsuario(email); 
+    public Optional<Record> getAllBId(@PathVariable("email") String email){
+        return recordService.getRecord(email); 
     }
 
     @PostMapping
-    public void saveUpdate(@RequestBody Usuario usuario){
-        usuarioService.saveOrUpdate(usuario); 
+    public void saveUpdate(@RequestBody Record record){
+        recordService.saveOrUpdate(record); 
     }
 
     @DeleteMapping("/{email}")
     public void saveUpdate(@PathVariable("email") String email){
-        usuarioService.delete(email); 
+        recordService.delete(email); 
     }
 }

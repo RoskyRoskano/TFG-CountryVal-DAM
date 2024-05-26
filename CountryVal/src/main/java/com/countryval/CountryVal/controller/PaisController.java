@@ -16,7 +16,7 @@ import com.countryval.CountryVal.entity.Pais;
 import com.countryval.CountryVal.service.PaisService;
 
 @RestController
-@RequestMapping(path="api/v1/paises")
+@RequestMapping(path="api/paises")
 public class PaisController {
     
     @Autowired

@@ -1,15 +1,17 @@
 let usuarioconectado = false
-let usuario = "admin"
-let contrasena = "admin"
+let emailUsuario = ""
+let contrasenaUsuario = "" 
+let nombreUsuario = ""
 
 ////// PAGINAS ///////
 function Inicio(){
     let editar = false
     return {
-        view:()=>[
+        view:()=> [
                    m("div", {"class":"ui center aligned segment"},
                      m("h1", {"class":"ui header saludar"},
-                        "Bienvenido Usuario"
+                        "Bienvenido " + nombreUsuario,
+                        console.log(nombreUsuario)
                      )
                    ),
                    m("div", {"class":"ui grid"},
@@ -216,12 +218,14 @@ function Inicio(){
                         )
                    )
                    : null
-                 ]
+            ]
     }
 }
 
 function Login(){
     let registro = false
+    let inputemail
+    let inputcontrasena
     return {
         view:()=>
             [
@@ -248,17 +252,37 @@ function Login(){
                                             m("h3", 
                                                 "Inicio de Sesión"
                                             ),
-                                            m("input", {"class":"username-inicio campo-sesion","type":"username","name":"username-inicio","placeholder":"Nombre de Usuario","required":"required"}),
+                                            m("input", {
+                                                "class":"mail-inicio campo-sesion",
+                                                "type":"email",
+                                                "name":"mail-inicio",
+                                                "placeholder":"Direccion Email",
+                                                "required":"required",
+                                                oncreate:(e)=>{
+                                                    inputemail = e.dom
+                                                }    
+                                            }),
                                                 m("br"),
                                                 m("br"),
                                             m("input", {
-                                                "class":"mail-inicio campo-sesion","type":"email","name":"mail-inicio","placeholder":"Direccion Email","required":"required"}),
+                                                "class":"passwd-inicio campo-sesion",
+                                                "type":"password",
+                                                "name":"passwd-incio",
+                                                "placeholder":"Contraseña",
+                                                "required":"required",
+                                                oncreate:(e)=>{
+                                                    inputcontrasena = e.dom
+                                                }
+                                            }),
                                                 m("br"),
                                                 m("br"),
-                                            m("input", {"class":"passwd-inicio campo-sesion","type":"password","name":"passwd-incio","placeholder":"Contraseña","required":"required"}),
-                                                m("br"),
-                                                m("br"),
-                                            m("a", {"class":"btn-iniciar boton","name":"btn-iniciar"}, 
+                                            m("a", {
+                                                "class":"btn-iniciar boton",
+                                                "name":"btn-iniciar",
+                                                onclick:()=>{
+                                                    consultarInicioSesion(inputemail.value, inputcontrasena.value)
+                                                }
+                                            }, 
                                                 "Iniciar Sesión"
                                             ),
                                                 m("br"),
@@ -470,7 +494,7 @@ function Nivel () {
                                     }, 
                                         m("div", {"id":"palabras"},
                                             nombrepais?.length 
-                                            ? nombrepais.split("").map( (letra,index) => {
+                                            ? nombrepais.split("").map((letra,index) => {
                                                 return m("input", {
                                                     maxLength: 1, 
                                                     value: letra=="_" ? letra : null,
@@ -488,11 +512,13 @@ function Nivel () {
                                                     },
                                                     oncreate: (e)=>{
                                                         inputs.push(e.dom)
+                                                        letra =="_" ? letrasUsuario[index] = "_" : ""
                                                     },
                                                     oninput:(e)=>{
                                                         e.target.value = e.target.value.toUpperCase();
                                                         if (letra == "_") {
-                                                            e.target.value = letra;
+                                                            console.log("_")
+                                                            e.target.value = "_";
                                                             e.target.readOnly = true;
                                                         }
                                                         else if (!e.target.value.match(/^[A-ZÑ]$/)) {
@@ -510,7 +536,9 @@ function Nivel () {
                                                             }
                                                             
                                                             letrasUsuario[index]= e.target.value
+                                                            
                                                         }
+                                                        console.log(letrasUsuario)
                                                     },
                                                     onkeydown:(e)=>{
                                                         if (e.keyCode == 8) {
@@ -539,6 +567,7 @@ function Nivel () {
                                                             }
                                                             
                                                             letrasUsuario[index]= e.target.value
+                                                            console.log(letrasUsuario)
                                                         }
                                                     }
                                                 },
@@ -889,6 +918,7 @@ function Nivel () {
             contador = 0;
             letrasUsuario = []
             pistasutilizadas = 0;
+            resuelto = false;
             pais();
         }
     }
@@ -897,7 +927,7 @@ function Nivel () {
         // Obtengo los datos de todos los paises
         m.request({
             method: "GET",
-            url: "/api/v1/paises"
+            url: "/api/paises"
         })
         .then(paises => {
             for (let i = 0; i < paises.length; i++) {
@@ -977,7 +1007,7 @@ function Nivel () {
     function comprobar(respuesta) {
             
         console.log(inputs)
-        console.log(respuesta)
+        console.log(puntosporronda)
         comprobarrespuesta(respuesta);
         // Comprueba todas las letras para ver cuales están en la posición correcta
         for (let i = 0; i < inputs.length; i++) {
@@ -1002,7 +1032,6 @@ function Nivel () {
             modalganar = true
         }
         //focusinputvacio();
-        m.redraw()
         
     }
     
@@ -1319,10 +1348,10 @@ function NivelMedio () {
 /////// ENRUTAMIENTO ///////
 const routes = {
   "/": {
-      view: ()=> m(Inicio)
+      view: ()=> m(Login)
   },
-  "/login": {
-      view:()=> m(Login)
+  "/inicio": {
+      view:()=> m(Inicio)
   },
   "/nivelfacil": {
       view:()=> m(Nivel, {nivel: "Fácil"})
@@ -1338,18 +1367,88 @@ const routes = {
 m.route(document.body, "/", routes)
 
 
+
 ////// FUNCIONES ///////
-function consultarUsuario() {
+function consultarInicioSesion(email, contrasena) {
     m.request({
         method: "GET",
-        url:'/api/v1/usuarios'
+        url:'/api/usuarios/'+email
     })
     .then(usuarios => {
         // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
-        usuarios.map(u => console.log(u.nombre))
+        if(email == usuarios.email && contrasena == usuarios.contrasena){
+            usuarioconectado = true
+            emailUsuario = usuarios.email
+            contrasenaUsuario = usuarios.contrasena 
+            nombreUsuario = usuarios.nombreUsuario
+            location.href = "./index.html#!inicio"
+        }
+        else {
+            return false
+        }
     })
     .catch(error => console.error('Error al obtener usuario:', error));
 }
+
+function actualizarinsertarUsuario(email, nombreusuario, contrasena){
+    m.request({
+        method: "POST",
+        url:'/api/usuarios',
+        body: {
+            email: email,
+            nombreusuario: nombreusuario,
+            contrasena: contrasena
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Usuario guardado:", response);
+        // Limpiar el formulario después de guardar
+        email = ""
+        nombreusuario = ""
+        contrasena = ""
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+function insertarUsuario(email, nombreusuario, contrasena){
+    m.request({
+        method: "POST",
+        url:'/api/usuarios',
+        body: {
+            email: email,
+            nombreusuario: nombreusuario,
+            contrasena: contrasena
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Usuario guardado:", response);
+        // Limpiar el formulario después de guardar
+        email = ""
+        nombreusuario = ""
+        contrasena = ""
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+    
+}
+
+function insertarPuntuacion(){
+
+}
+
+
+
+
+
 
 
 

@@ -1,16 +1,19 @@
 package com.countryval.CountryVal.entity;
 
-import lombok.Data;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Data
 @Entity
-@Table(name="usuarios")
-public class Usuario {
+@Table(name="records")
+public class Record {
     @Id
     private String email;
-    private String nombreusuario;
-    private String contrasena;
+    private int recordfacil;
+    private int recordmedio;
+    private int recorddificil;
+    private int totalrecord;
 }
+
