@@ -11,6 +11,9 @@ recuperarUsuarioLocalStorage()
 function Inicio(){
     
     let editar = false
+    let editarEmail = ""
+    let editarUsuario = ""
+    let editarContrasena = ""
     return {
         oninit:()=>{
             consultarRecord()
@@ -226,37 +229,56 @@ function Inicio(){
                                 m("h3",
                                     "Editar Perfil"
                                 ),
-                                m("label", {"class":"textoeditar","for":"Nombre"},
-                                    "Nombre:"
-                                ),
-                                m("br"),
-                                m("input", {"class":"nombre-editar campo-sesion","type":"text","name":"nombre-editar"}),
-                                m("br"),
-                                m("br"),
                                 m("label", {"class":"textoeditar","for":"Email"},
                                     "Email:"
                                 ),
                                 m("br"),
-                                m("input", {"class":"email-editar campo-sesion","type":"email","name":"email-editar","readonly":"readonly"}),
-                                m("br"),
-                                m("br"),
+                                m("input", 
+                                    {"class":"email-editar campo-sesion","type":"email","name":"email-editar","readonly":"readonly",
+                                        value: emailUsuario,
+                                        oncreate:(e)=>{
+                                            editarEmail = e.dom
+                                        }
+                                    }),
+                                    m("br"),
+                                    m("br"),
                                 m("label", {"class":"textoeditar","for":"Nombre de Usuario"},
                                     "Nombre de Usuario:"
                                 ),
                                 m("br"),
-                                m("input", {"class":"username-editar campo-sesion","type":"text","name":"username-editar"}),
+                                m("input", 
+                                    {"class":"username-editar campo-sesion","type":"text","name":"username-editar", 
+                                        value: nombreUsuario,
+                                        oncreate:(e)=>{
+                                            editarUsuario = e.dom
+                                        }
+                                }),
                                 m("br"),
                                 m("br"),
                                 m("label", {"class":"textoeditar","for":"Contrasena"},
                                     "Contraseña: "
                                 ),
                                 m("br"),
-                                m("input", {"class":"passwd-editar campo-sesion","type":"password","name":"passwd-editar"}),
+                                m("input", 
+                                    {
+                                        "class":"passwd-editar campo-sesion","type":"password","name":"passwd-editar",
+                                        value: contrasenaUsuario,
+                                        oninput:(e)=>{
+                                            editarContrasena = e.dom
+                                        }
+                                    }
+                                ),
                                 m("br"),
                                 m("br"),
                                 m("p", {"class":"mensajeeditarmodal"}),
                                 m("br"),
-                                m("button", {"class":"btneditar boton"},
+                                m("button", {
+                                    "class":"btneditar boton",
+                                    onclick: ()=>{
+                                        actualizarUsuario(editarEmail.valueOf, editarUsuario.valueOf, editarContrasena.valueOf)
+                                    }
+                                
+                                },
                                     "Editar"
                                 )
                             ]
@@ -1414,7 +1436,7 @@ function InicioSesion(email, contrasena) {
     .then(usuarios => {
         // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
         if(email == usuarios.email && contrasena == usuarios.contrasena){
-            saveUsuarioLocalStorage(usuarios.email, usuarios.contrasena, usuarios.nombreusuario)
+            saveUsuarioLocalStorage(usuarios.email, usuarios.nombreusuario, usuarios.contrasena)
             location.href = "./index.html#!inicio"
         }
         else {
@@ -1422,31 +1444,6 @@ function InicioSesion(email, contrasena) {
         }
     })
     .catch(error => console.error('Error al obtener usuario:', error));
-}
-
-function actualizarinsertarUsuario(email, nombreusuario, contrasena){
-    m.request({
-        method: "POST",
-        url:'/api/usuarios',
-        body: {
-            email: email,
-            nombreusuario: nombreusuario,
-            contrasena: contrasena
-        },
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(function(response) {
-        console.log("Usuario guardado:", response);
-        // Limpiar el formulario después de guardar
-        email = ""
-        nombreusuario = ""
-        contrasena = ""
-    })
-    .catch(function(error) {
-        console.log("Error al guardar el usuario:", error);
-    })
 }
 
 function insertarUsuario(email, nombreusuario, contrasena){
@@ -1472,7 +1469,28 @@ function insertarUsuario(email, nombreusuario, contrasena){
     .catch(function(error) {
         console.log("Error al guardar el usuario:", error);
     })
-    
+}
+
+function actualizarUsuario(email, nombreusuario, contrasena){
+    m.request({
+        method: "POST",
+        url:'/api/usuarios',
+        body: {
+            email: email,
+            nombreusuario: nombreusuario,
+            contrasena: contrasena
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Usuario actualizado:", response);
+        // Limpiar el formulario después de guardar
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
 }
 
 function insertarPuntuacion(){
@@ -1495,6 +1513,7 @@ function consultarRecord(){
     })
 }
 
+//Guardar sesión del Usuario
 function saveUsuarioLocalStorage(email, nombreusuario, contrasena){
     var usuario = {
         email: email,
@@ -1516,6 +1535,7 @@ function recuperarUsuarioLocalStorage() {
     }
 }
 
+//Ranking Global
 function rankingGlobal(){
     m.request({
         method: "GET",
