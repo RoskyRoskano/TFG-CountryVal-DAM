@@ -4,6 +4,8 @@ let contrasenaUsuario = ""
 let nombreUsuario = ""
 let recordsUsuario = {}
 let rankingglobal = []
+let urls = []
+let imagenes = []
 
 recuperarUsuarioLocalStorage()
 
@@ -436,7 +438,71 @@ function Login(){
     }
 }
 
+function VerImagen() {
+    return {
+        view:()=>[
+            m("div", [
+                m("img", { 
+                    src: "../img/banderas/albania.gif", style: "display:none;",
+                    oncreate:(e)=>{
+
+                    }
+                }),
+                m("canvas", { style: "display:none;" }),
+                m("div", vnode.state.parts && vnode.state.parts.map(part => m("img", { src: part, style: "margin:5px;" })))
+            ])
+        ]
+    }
+}
+// function ImageSplitter(){
+//     return {
+//         // oncreate: (vnode) => {
+//         //     const img = vnode.dom.querySelector('img');
+//         //     const canvas = vnode.dom.querySelector('canvas');
+    
+//         //     img.onload = () => {
+//         //         const ctx = canvas.getContext('2d');
+//         //         const { width, height } = img;
+//         //         const partWidth = width / 3;
+//         //         const partHeight = height / 2;
+    
+//         //         // Ajustar el tamaño del canvas para que contenga la imagen completa
+//         //         canvas.width = width;
+//         //         canvas.height = height;
+    
+//         //         // Dibujar la imagen en el canvas
+//         //         ctx.drawImage(img, 0, 0, width, height);
+    
+//         //         const parts = [];
+    
+//         //         for (let i = 0; i < 2; i++) {
+//         //             for (let j = 0; j < 3; j++) {
+//         //                 const partCanvas = document.createElement('canvas');
+//         //                 const partCtx = partCanvas.getContext('2d');
+    
+//         //                 partCanvas.width = partWidth;
+//         //                 partCanvas.height = partHeight;
+    
+//         //                 partCtx.drawImage(canvas, j * partWidth, i * partHeight, partWidth, partHeight, 0, 0, partWidth, partHeight);
+                        
+//         //                 parts.push(partCanvas.toDataURL());
+//         //             }
+//         //         }
+    
+//         //         vnode.state.parts = parts;
+//         //         m.redraw();
+//         //     };
+//         // },
+//         view:()=>
+            
+            
+        
+//     }
+    
+// };
+
 function Nivel () {
+    let nivel = ""
     let letrasUsuario = [];
     let respuesta="";
     let nombrepais;
@@ -461,9 +527,22 @@ function Nivel () {
     let cerrado = true;
     let fin = false;
     let contenedorpaisespuntuaciones = false
+    let numimagen = 0
+    let vecesfallado = 0
+    let imghabitantes
+    let imgmonumento
+    let imgsilueta
+    let imgfamoso
+    let imgcapital
+    let imagenesutilizadas = {}
+    let img
     
 
   return {
+        oninit:({attrs})=> {
+            consultarRecord()
+            nivel = attrs.nivel
+        },
         oncreate:()=> {
             FuncionalidadLvlFacil()
         },
@@ -510,17 +589,42 @@ function Nivel () {
                                                 m("div", {"id":"imagenes"},
                                                     [
                                                         m("div", {"class":"textosdificil","id":"imagen1"}, 
-                                                            m("h1", {"class":"habitantesycapital","id":"habitantes"})
+                                                            m("h1", {
+                                                                "class":"habitantesycapital","id":"habitantes",
+                                                                oncreate:(e)=>{
+                                                                    imghabitantes = e.dom
+                                                                }
+                                                            })
                                                         ),
-                                                        m("div", {"class":"imagenesdificil","id":"imagen2"}),
-                                                        m("div", {"class":"imagenesdificil","id":"imagen3"})
+                                                        m("div", {
+                                                            "class":"imagenesdificil","id":"imagen2",
+                                                            oncreate:(e)=>{
+                                                                imgmonumento = e.dom
+                                                            }
+                                                        }),
+                                                        m("div", {
+                                                            "class":"imagenesdificil","id":"imagen3",
+                                                            oncreate:(e)=>{
+                                                                imgsilueta = e.dom
+                                                            }
+                                                        })
                                                     ]
                                                 ),
                                                 m("div", {"id":"imagenes"},
                                                     [
-                                                        m("div", {"class":"imagenesdificil","id":"imagen4"}),
+                                                        m("div", {
+                                                            "class":"imagenesdificil","id":"imagen4",
+                                                            oncreate:(e)=>{
+                                                                imgfamoso = e.dom
+                                                            }
+                                                        }),
                                                         m("div", {"class":"textosdificil","id":"imagen5"}, 
-                                                            m("h1", {"class":"habitantesycapital","id":"capital"})
+                                                            m("h1", {
+                                                                "class":"habitantesycapital","id":"capital",
+                                                                oncreate:(e)=>{
+                                                                    imgcapital = e.dom
+                                                                }
+                                                            })
                                                         )
                                                     ]
                                                 )
@@ -534,24 +638,51 @@ function Nivel () {
                                 : null,
                                 //IMAGENES NIVEL EDIO
                                 attrs.nivel == "Medio"
-                                ? m("div", {"class":"ui center aligned segment"},
-                                    [
-                                        m("div", {"id":"imagenes"},
-                                            [
-                                                m("div", {"class":"image","id":"imagen1"}),
-                                                m("div", {"class":"image","id":"imagen2"}),
-                                                m("div", {"class":"image","id":"imagen3"})
-                                            ]
-                                        ),
-                                        m("div", {"id":"imagenes"},
-                                            [
-                                                m("div", {"class":"image","id":"imagen4"}),
-                                                m("div", {"class":"image","id":"imagen5"}),
-                                                m("div", {"class":"image","id":"imagen6"})
-                                            ]
-                                        )
-                                    ]
-                                )
+                                ? [
+                                    m("div", {"class":"ui center aligned segment"},
+                                        [
+                                            m("div", {"id":"imagenes"},
+                                                [
+                                                    m("div", {
+                                                        "class":"image","id":"imagen1",
+                                                        oncreate:(e) => {
+                                                            imagenes.push(e.dom)
+                                                        }
+                                                    }),
+                                                    m("div", {"class":"image","id":"imagen2",
+                                                    oncreate:(e) => {
+                                                        imagenes.push(e.dom)
+                                                    }}),
+                                                    m("div", {"class":"image","id":"imagen3",
+                                                    oncreate:(e) => {
+                                                        imagenes.push(e.dom)
+                                                    }})
+                                                ]
+                                            ),
+                                            m("div", {"id":"imagenes"},
+                                                [
+                                                    m("div", {"class":"image","id":"imagen4",
+                                                    oncreate:(e) => {
+                                                        imagenes.push(e.dom)
+                                                    }}),
+                                                    m("div", {"class":"image","id":"imagen5",
+                                                    oncreate:(e) => {
+                                                        imagenes.push(e.dom)
+                                                    }}),
+                                                    m("div", {"class":"image","id":"imagen6",
+                                                    oncreate:(e) => {
+                                                        imagenes.push(e.dom)
+                                                    }})
+                                                ]
+                                            )
+                                        ]
+                                    ),
+                                    m("img", {
+                                        oncreate:(e)=>{
+                                            img = e.dom
+                                        },
+                                        "id":"imagen","src":"","style":{"display":"none"}})
+                                ]
                                 : null,
                                 //PARA TODOS LOS NIVELES
                                 //CASILLAS
@@ -579,19 +710,19 @@ function Nivel () {
                                                     },
                                                     oncreate: (e)=>{
                                                         inputs.push(e.dom)
-                                                        letra =="_" ? letrasUsuario[index] = "_" : ""
+                                                        if (letra == "_") {
+                                                            letrasUsuario[index] = "_"
+                                                            e.dom.style.backgroundColor = "gray"
+                                                        }
                                                     },
                                                     oninput:(e)=>{
                                                         e.target.value = e.target.value.toUpperCase();
-                                                        if (letra == "_") {
-                                                            console.log("_")
-                                                            e.target.value = "_";
-                                                            e.target.readOnly = true;
-                                                        }
-                                                        else if (!e.target.value.match(/^[A-ZÑ]$/)) {
+                                                
+                                                        if (!e.target.value.match(/^[A-ZÑ]$/)) {
                                                             
                                                             e.target.value = "";
-                                                        } else {
+                                                        } 
+                                                        else {
                                                             if (e.target.value.length == e.target.maxLength) {
                                                                 let nextInput = e.target.nextElementSibling;
                                                                 while (nextInput && (nextInput.readOnly || !nextInput.matches("input"))) {
@@ -667,7 +798,9 @@ function Nivel () {
                                                     respuesta += l
                                                 })
                                                 console.log(respuesta)
-                                                perder(respuesta)
+                                                if(resuelto != true){
+                                                    perder(respuesta)
+                                                }
                                             }
                                         }, 
                                             "Comprobar"
@@ -771,31 +904,58 @@ function Nivel () {
                                 "Has Perdido!"
                             ),
                             m("h3", 
-                                "Nivel: " + attrs.nivel
-                            ),
-                            m("h3", {"class":"puntuacionObtenida"}, 
-                                "Puntuación Obtenida: "
-                            ),
-                            m("h3", {"class":"puntuacionRecord"}, 
-                                "Récord Puntuación: "
-                            ),
-                            m("div", {"class":"contenedorpaisesacertados"},
-                                [
-                                    m("h3", {"class":"titulopaisesacertados"}, 
-                                        "Ver paises acertados"
-                                    ),
-                                    m("div", {"class":"contenedorpaisesypuntuaciones"}, 
-                                        m("p", {"class":"paisesypuntuaciones"})
-                                    )
-                                ]
-                            ),
-                            m("br"),
-                            m("button", {"class":"volverIntentar boton"}, 
-                                "Volver a Intentar"
-                            ),
-                            m("button", {"class":"volverMenu boton"}, 
-                                "Volver al Menú Principal"
-                            )
+                            "Nivel: " + attrs.nivel
+                        ),
+                        m("h3", {"class":"puntuacionObtenida"}, 
+                            "Puntuación Obtenida: " + puntos + " Puntos"
+                        ),
+                        m("h3", {"class":"puntuacionRecord"}, 
+                            "Récord Puntuación: " + (attrs.nivel == "facil" ? recordsUsuario.recordfacil : attrs.nivel == "medio" ? recordsUsuario.recordmedio : recordsUsuario.recorddificil)
+                    
+                        ),
+                        m("div", {
+                            "class":"contenedorpaisesacertados", 
+                            style: {cursor: "pointer"}, 
+                            onclick:()=>{
+                                contenedorpaisespuntuaciones = !contenedorpaisespuntuaciones
+                            }
+                        },
+                            [
+                                m("h3", {"class":"titulopaisesacertados"}, 
+                                    "Ver paises acertados"
+                                ),
+                                m("div", {
+                                    "class":"contenedorpaisesypuntuaciones",
+                                    style: {
+                                        height: "content",
+                                        display: contenedorpaisespuntuaciones ? "block" : "none"
+                                    },
+                                    
+                                }, 
+                                    
+                                    Object.keys(paisesmostrados).map(pais =>{
+                                        return m("p", pais + ": " + paisesmostrados[pais].Puntuaje + " Puntos")
+                                    }),
+                                ),
+                                
+                            ]
+                        ),
+                        m("br"),
+                        m("button", {
+                            "class":"volverIntentar boton",
+                            onclick:()=>{
+                                location.reload()
+                            }}, 
+                            "Volver a Intentar"
+                        ),
+                        m("button", {
+                            "class":"volverMenu boton",
+                            onclick:()=>{
+                                location.href = "./"
+                            }
+                        }, 
+                            "Volver al Menú Principal"
+                        )
                         ]
                     )
                 )
@@ -814,7 +974,7 @@ function Nivel () {
                                 "Puntuación Obtenida: " + puntos + " Puntos"
                             ),
                             m("h3", {"class":"puntuacionRecord"}, 
-                                "Récord Puntuación: " 
+                                "Récord Puntuación: " + (attrs.nivel == "facil" ? recordsUsuario.recordfacil : attrs.nivel == "medio" ? recordsUsuario.recordmedio : recordsUsuario.recorddificil)
                             ),
                             m("div", {
                                 "class":"contenedorpaisesacertados", 
@@ -844,10 +1004,19 @@ function Nivel () {
                                 ]
                             ),
                             m("br"),
-                            m("button", {"class":"volverIntentar boton"}, 
+                            m("button", {
+                                "class":"volverIntentar boton",
+                                onclick:()=>{
+                                    location.reload()
+                                }}, 
                                 "Volver a Intentar"
                             ),
-                            m("button", {"class":"volverMenu boton"}, 
+                            m("button", {
+                                "class":"volverMenu boton",
+                                onclick:()=>{
+                                    location.href = "./"
+                                }
+                            }, 
                                 "Volver al Menú Principal"
                             )
                         ]
@@ -858,7 +1027,43 @@ function Nivel () {
             ]
   }
 
-    
+    function pintarbanderaDificil() {
+        //depende del número del fallo que ha cometido el usuario pone una imagen o otra
+        numimagen++
+        let imagen = ""
+        switch (numimagen) {
+        case 1://habitantes
+            console.log(habitantespais)
+            imghabitantes.innerText = habitantespais
+
+            break;
+        case 2://monumento famoso
+            imagen = "monumentos/"+monumentopais
+            imgmonumento.style.backgroundImage = 'url("../img/monumentos/' + monumentopais + '")' 
+            // $("#imagen2").click(function () {
+            //     ventanamodal(imagen)
+            // })
+            break;
+        case 3://silueta del pais
+            imagen = "siluetas/"+siluetapais
+            imgsilueta.style.backgroundImage = 'url("../img/siluetas/' + siluetapais + '")'
+            // $("#imagen3").click(function () {
+            // ventanamodal(imagen)
+            // })
+            break;
+        case 4://persona famosa
+            imagen = "famosos/"+famosopais
+            imgfamoso.style.backgroundImage = 'url("../img/famosos/' + famosopais + '")'
+            // $("#imagen4").click(function () {
+            // ventanamodal(imagen)
+            // })
+            break;
+        case 5://capital del pais
+            imgcapital.innerText = capitalpais
+            break;
+
+        }
+    }
 
    
 
@@ -875,9 +1080,11 @@ function Nivel () {
                 }
             }
         });
+
+        
         
         pais();
-    
+        recortarImagen()
 
     // Compruebo si estás logeado para dejarte entrar a la página o no
     // $.ajax({
@@ -971,6 +1178,81 @@ function Nivel () {
 
     }
 
+    
+
+    function pintarbandera() {
+        console.log(imagenes)
+        console.log(urls)
+        let numeroaleatorio = Math.floor(Math.random() * 6);
+        console.log(numeroaleatorio)
+        
+    
+        let urlselec = urls[numeroaleatorio]
+    
+        if (urlselec in imagenesutilizadas) {
+            pintarbandera()
+        }
+        else {
+            imagenes[numeroaleatorio].style.backgroundImage =  'url("' + urls[numeroaleatorio] + '")'
+            imagenes[numeroaleatorio].style.backgroundRepeat = "no-repeat"
+            imagenesutilizadas[urlselec] = true
+            console.log(imagenesutilizadas)
+        }
+    
+        if (resuelto == true) {
+            for (let i = 0; i < 6; i++) {
+                imagenes[i].style.backgroundImage = 'url("' + urls[i] + '")'
+            }
+        }
+    }
+    
+    function recortarImagen() {
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+    
+        var img = document.getElementById("imagen");
+        var ancho, alto;
+    
+        img.onload = function () {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ancho = img.naturalWidth / 3;
+            alto = img.naturalHeight / 2;
+    
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+            urls = [];
+            for (var i = 0; i < 6; i++) {
+                var x = (i % 3) * ancho;
+                var y = Math.floor(i / 3) * alto;
+    
+                var canvasParte = document.createElement("canvas");
+                canvasParte.id = i;
+                canvasParte.width = ancho;
+                canvasParte.height = alto;
+    
+                var ctxParte = canvasParte.getContext("2d");
+    
+                ctxParte.drawImage(canvas, x, y, ancho, alto, 0, 0, ancho, alto);
+    
+                var parteImagen = document.createElement("img");
+                parteImagen.src = canvasParte.toDataURL();
+                urls.push(parteImagen.src);
+            }
+    
+            var anchoimagenes = canvasParte.width;
+            var altoimagenes = canvasParte.height;
+    
+            for (i = 1; i <= 6; i++) {
+                let trozo = document.getElementById("imagen" + i);
+                trozo.style.width = `${anchoimagenes}px`;
+                trozo.style.height = `${altoimagenes}px`;
+            }
+        };
+        
+        img.src = `./img/banderas/${banderapais}`
+    }
+
     function siguientenivel() {
         // Reinicia las variable y muestra otro país
         if (resuelto == true) {
@@ -986,6 +1268,9 @@ function Nivel () {
             pistasutilizadas = 0;
             resuelto = false;
             pais();
+            for (let i = 0; i < 6; i++) {
+                imagenes[i].style.backgroundImage = 'url("")'
+            }
         }
     }
 
@@ -1011,27 +1296,20 @@ function Nivel () {
             }
 
             
-        // Compruebo si está repetido el pais para mostrarlo
-        // if (nombrepais.toUpperCase() in paisesmostrados) {
-        //     numaleatorio = Math.floor(Math.random() * 50) + 1;
-        //     pais();
-        // } else {
-        //     console.log(nombrepais)
-        //     // Creo un input para cada letra del pais
-        //     resuelto = false;
-        //     let divpalabras = document.getQuerySelector(".palabras");
-        //     paisseleccionado = nombrepais.split("");
-        //     console.log(nombrepais);
-        //     divpalabras.innerHTML = "";
-    
-            
-        //     focusinputvacio();
-    
-        //     m.redraw()
-        // }
-        }).catch(function (e) {
-            console.log("ERROR" + e.message);
-        });
+            //Compruebo si está repetido el pais para mostrarlo
+            if (nombrepais in paisesmostrados) {
+                numaleatorio = Math.floor(Math.random() * 50) + 1;
+                pais();
+            } else {
+                recortarImagen()
+        
+                
+                //focusinputvacio();
+        
+            }
+            }).catch(function (e) {
+                console.log("ERROR" + e.message);
+            });
         
     }
 
@@ -1065,36 +1343,44 @@ function Nivel () {
             if (resuelto == false) {
                 fin = true;
                 puntuaciones();
-                document.querySelector("#ventanaModalPerder").style.display = "block";
+                modalperder = true
             }
         }
     }
     
     function comprobar(respuesta) {
-            
+        
         console.log(inputs)
         console.log(puntosporronda)
         comprobarrespuesta(respuesta);
         // Comprueba todas las letras para ver cuales están en la posición correcta
         for (let i = 0; i < inputs.length; i++) {
             if (inputs[i].value != nombrepais[i]) {
-                inputs[i].value = "";
+                inputs[i].value = ""
             }
-             else {
-                if (inputs[i].style.backgroundColor != "gray") {
-                    inputs[i].style.backgroundColor = "green";
+            else {
+                    inputs[i].style.backgroundColor = "green"
                     inputs[i].readOnly = true;
-                }
+                
             }
         }
+
+        
         // Si está mal puesto el nombre por el usuario te resta puntos
         if (resuelto != true) {
+            
             puntosporronda -= 10;
+            pintarbandera()
+            //pintarbanderaDificil()
         }
+        else{
+            pintarbandera()
+        }
+
         if (Object.keys(paisesmostrados).length == 2) {
             console.log(paisesmostrados.length)
             fin = true;
-            puntuaciones();
+            almacenarPartida();
             modalganar = true
         }
         //focusinputvacio();
@@ -1108,12 +1394,240 @@ function Nivel () {
             paisesmostrados[nombrepais] = { "Adivinado": true, "Puntuaje": puntosporronda };
             resuelto = true;
             puntos += puntosporronda;
-            console.log(paisesmostrados, paisesmostrados[nombrepais].Adivinado, paisesmostrados[nombrepais].Puntuaje)
         }
     }
 
+    function almacenarPartida() {
+        let paisesacertados = ""
+        Object.keys(paisesmostrados).map(pais => {
+            paisesacertados += pais.toLowerCase() + ", "
+        })
+        console.log(emailUsuario, paisesacertados, puntos, nivel)
+        
+        m.request({
+            method: "POST",
+            url:'/api/partidas',
+            body: {
+                email: emailUsuario,
+                paisesacertados: paisesacertados,
+                puntuacion: puntos,
+                nivel: nivel
+            },
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(function(response) {
+            console.log("Partida guardada:", response);
+            // Limpiar el formulario después de guardar
+            paisesacertados = ""
+        })
+        .catch(function(error) {
+            console.log("Error al guardar el usuario:", error);
+        })
+    }
+
+    function almacenarRecord() {
+        // let paisesacertados = ""
+        // Object.keys(paisesmostrados).map(pais => {
+        //     paisesacertados += pais.toLowerCase() + ", "
+        // })
+        // console.log(emailUsuario, paisesacertados, puntos, nivel)
+        
+        // m.request({
+        //     method: "POST",
+        //     url:'/api/records',
+        //     body: {
+        //         email: emailUsuario,
+        //         paisesacertados: paisesacertados,
+        //         puntuacion: puntos,
+        //         nivel: nivel
+        //     },
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     }
+        // })
+        // .then(function(response) {
+        //     console.log("Partida guardada:", response);
+        //     // Limpiar el formulario después de guardar
+        //     paisesacertados = ""
+        // })
+        // .catch(function(error) {
+        //     console.log("Error al guardar el usuario:", error);
+        // })
+    }
+
+
     
 }
+
+/////// ENRUTAMIENTO ///////
+const routes = {
+  "/": {
+      view: ()=> usuarioconectado ? m(Inicio) : m(Login)
+  },
+  "/inicio": {
+      view:()=> usuarioconectado ? m(Inicio) : location.href = "./"
+  },
+  "/nivelfacil": {
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Fácil"}) : location.href = "./"
+  },
+  "/nivelmedio": {
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Medio"}) : location.href = "./"
+  },
+  "/niveldificil": {
+      view:()=> usuarioconectado ? m(Nivel, {nivel: "Difícil"}) : location.href = "./"
+  }
+}
+
+m.route(document.body, "/", routes)
+
+
+
+////// FUNCIONES ///////
+function InicioSesion(email, contrasena) {
+    m.request({
+        method: "GET",
+        url:'/api/usuarios/'+email
+    })
+    .then(usuarios => {
+        // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
+        if(email == usuarios.email && contrasena == usuarios.contrasena){
+            saveUsuarioLocalStorage(usuarios.email, usuarios.nombreusuario, usuarios.contrasena)
+            location.href = "./index.html#!inicio"
+        }
+        else {
+            return false
+        }
+    })
+    .catch(error => console.error('Error al obtener usuario:', error));
+}
+
+function insertarUsuario(email, nombreusuario, contrasena){
+    m.request({
+        method: "POST",
+        url:'/api/usuarios',
+        body: {
+            email: email,
+            nombreusuario: nombreusuario,
+            contrasena: contrasena
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Usuario guardado:", response);
+        // Limpiar el formulario después de guardar
+        email = ""
+        nombreusuario = ""
+        contrasena = ""
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+function actualizarUsuario(email, nombreusuario, contrasena){
+    m.request({
+        method: "POST",
+        url:'/api/usuarios',
+        body: {
+            email: email,
+            nombreusuario: nombreusuario,
+            contrasena: contrasena
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Usuario actualizado:", response);
+        // Limpiar el formulario después de guardar
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+function insertarPuntuacion(){
+
+}
+
+function consultarRecord(){
+    m.request({
+        method: "GET",
+        url:'/api/records/' + emailUsuario,
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(records => {
+        recordsUsuario = records
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+//Guardar sesión del Usuario
+function saveUsuarioLocalStorage(email, nombreusuario, contrasena){
+    var usuario = {
+        email: email,
+        nombreusuario: nombreusuario,
+        contrasena: contrasena
+    };
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    console.log("Usuario guardado en localStorage:", usuario);
+}
+
+function recuperarUsuarioLocalStorage() {
+    var usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (usuario) {
+        usuarioconectado = true
+        emailUsuario = usuario.email
+        contrasenaUsuario = usuario.contrasena
+        nombreUsuario = usuario.nombreusuario
+        console.log("Usuario cargado desde localStorage:", usuario);
+    }
+}
+
+//Ranking Global
+function rankingGlobal(){
+    m.request({
+        method: "GET",
+        url:'/api/usuarios',
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(usuarios => {
+        usuarios.map(usuario => {
+            m.request({
+                method: "GET",
+                url:'/api/records/' + usuario.email,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(records => {
+                console.log(records)
+                rankingglobal.push({nombreusuario: usuario.nombreusuario, record: records.totalrecord})
+            })
+            .catch(function(error) {
+                console.log("Error al guardar el usuario:", error);
+            })
+        })
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el usuario:", error);
+    })
+}
+
+
+
+
+
 
 /*
 function NivelDificil () {
@@ -1326,8 +1840,7 @@ function NivelMedio () {
                       )
                   ]
               ), 
-              m("canvas", {"id":"canvas"}), 
-              m("img", {"id":"imagen","src":"","style":{"display":"none"}}), 
+               
               m("div", {"class":"modal","id":"ventanaModalPerder"}, 
                   m("div", {"class":"modal-perder"},
                       [
@@ -1404,168 +1917,9 @@ function NivelMedio () {
 }
 */
 
-/////// ENRUTAMIENTO ///////
-const routes = {
-  "/": {
-      view: ()=> usuarioconectado ? m(Inicio) : m(Login)
-  },
-  "/inicio": {
-      view:()=> usuarioconectado ? m(Inicio) : location.href = "./"
-  },
-  "/nivelfacil": {
-      view:()=> usuarioconectado ? m(Nivel, {nivel: "Fácil"}) : location.href = "./"
-  },
-  "/nivelmedio": {
-      view:()=> usuarioconectado ? m(Nivel, {nivel: "Medio"}) : location.href = "./"
-  },
-  "/niveldificil": {
-      view:()=> usuarioconectado ? m(Nivel, {nivel: "Difícil"}) : location.href = "./"
-  }
-}
-
-m.route(document.body, "/", routes)
 
 
 
-////// FUNCIONES ///////
-function InicioSesion(email, contrasena) {
-    m.request({
-        method: "GET",
-        url:'/api/usuarios/'+email
-    })
-    .then(usuarios => {
-        // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
-        if(email == usuarios.email && contrasena == usuarios.contrasena){
-            saveUsuarioLocalStorage(usuarios.email, usuarios.nombreusuario, usuarios.contrasena)
-            location.href = "./index.html#!inicio"
-        }
-        else {
-            return false
-        }
-    })
-    .catch(error => console.error('Error al obtener usuario:', error));
-}
-
-function insertarUsuario(email, nombreusuario, contrasena){
-    m.request({
-        method: "POST",
-        url:'/api/usuarios',
-        body: {
-            email: email,
-            nombreusuario: nombreusuario,
-            contrasena: contrasena
-        },
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(function(response) {
-        console.log("Usuario guardado:", response);
-        // Limpiar el formulario después de guardar
-        email = ""
-        nombreusuario = ""
-        contrasena = ""
-    })
-    .catch(function(error) {
-        console.log("Error al guardar el usuario:", error);
-    })
-}
-
-function actualizarUsuario(email, nombreusuario, contrasena){
-    m.request({
-        method: "POST",
-        url:'/api/usuarios',
-        body: {
-            email: email,
-            nombreusuario: nombreusuario,
-            contrasena: contrasena
-        },
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(function(response) {
-        console.log("Usuario actualizado:", response);
-        // Limpiar el formulario después de guardar
-    })
-    .catch(function(error) {
-        console.log("Error al guardar el usuario:", error);
-    })
-}
-
-function insertarPuntuacion(){
-
-}
-
-function consultarRecord(){
-    m.request({
-        method: "GET",
-        url:'/api/records/' + emailUsuario,
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(records => {
-        recordsUsuario = records
-    })
-    .catch(function(error) {
-        console.log("Error al guardar el usuario:", error);
-    })
-}
-
-//Guardar sesión del Usuario
-function saveUsuarioLocalStorage(email, nombreusuario, contrasena){
-    var usuario = {
-        email: email,
-        nombreusuario: nombreusuario,
-        contrasena: contrasena
-    };
-    localStorage.setItem('usuario', JSON.stringify(usuario));
-    console.log("Usuario guardado en localStorage:", usuario);
-}
-
-function recuperarUsuarioLocalStorage() {
-    var usuario = JSON.parse(localStorage.getItem('usuario'));
-    if (usuario) {
-        usuarioconectado = true
-        emailUsuario = usuario.email
-        contrasenaUsuario = usuario.contrasena
-        nombreUsuario = usuario.nombreusuario
-        console.log("Usuario cargado desde localStorage:", usuario);
-    }
-}
-
-//Ranking Global
-function rankingGlobal(){
-    m.request({
-        method: "GET",
-        url:'/api/usuarios',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then(usuarios => {
-        usuarios.map(usuario => {
-            m.request({
-                method: "GET",
-                url:'/api/records/' + usuario.email,
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(records => {
-                console.log(records)
-                rankingglobal.push({nombreusuario: usuario.nombreusuario, record: records.totalrecord})
-            })
-            .catch(function(error) {
-                console.log("Error al guardar el usuario:", error);
-            })
-        })
-    })
-    .catch(function(error) {
-        console.log("Error al guardar el usuario:", error);
-    })
-}
 
 
 
