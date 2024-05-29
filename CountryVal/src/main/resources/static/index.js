@@ -6,6 +6,7 @@ let recordsUsuario = {}
 let rankingglobal = []
 let urls = []
 let imagenes = []
+let key = "jGzIDSFwd34.dhgu38d_>hfud38hdbthdv"
 
 recuperarUsuarioLocalStorage()
 
@@ -62,13 +63,19 @@ function Inicio(){
                                         editar = !editar
                                         //consultarUsuario()
                                     },
-                                    "class":"editarperfil boton"},
+                                    "class":"editarperfil boton",
+                                    style: {
+                                        width: "100%"
+                                    }},
                                     "Editar Perfil"
                                 ),
                                 m("br"),
                                 m("br"),
                                 m("p", {"class":"mensajeeditar"}),
                                 m("button", {
+                                    style: {
+                                        width: "100%"
+                                    },
                                     "class":"btncerrarsesion boton",
                                     onclick:()=>{
                                         localStorage.removeItem('usuario')
@@ -205,18 +212,6 @@ function Inicio(){
                         )
                         ]
                    ),
-                //    m("div", {"class":"modal","id":"ventanaModal"},
-                //      m("div", {"class":"modal-content"},
-                //         [
-                //             m("div", {"class":"cerrar"},
-                //             m.trust("&times;")
-                //             ),
-                //             m("h2",
-                //             "Registrarse"
-                //             )
-                //         ]
-                //      )
-                //    ),
                    editar
                    ? m("div", {"class":"modal","id":"ventanaModalUsuario"},
                         m("div", {"class":"modal-content"},
@@ -265,7 +260,7 @@ function Inicio(){
                                     {
                                         "class":"passwd-editar campo-sesion","type":"password","name":"passwd-editar",
                                         value: contrasenaUsuario,
-                                        oninput:(e)=>{
+                                        oncreate:(e)=>{
                                             editarContrasena = e.dom
                                         }
                                     }
@@ -277,7 +272,7 @@ function Inicio(){
                                 m("button", {
                                     "class":"btneditar boton",
                                     onclick: ()=>{
-                                        actualizarUsuario(editarEmail.valueOf, editarUsuario.valueOf, editarContrasena.valueOf)
+                                        actualizarUsuario(editarEmail.value, editarUsuario.value, editarContrasena.value)
                                     }
                                 
                                 },
@@ -295,6 +290,9 @@ function Login(){
     let registro = false
     let inputemail
     let inputcontrasena
+    let inputemailregistro
+    let inputusuarioregistro
+    let inputcontrasenaregistro
     return {
         view:()=>
             [
@@ -395,36 +393,47 @@ function Login(){
                             m("h2", 
                                 "Registrarse"
                             ),
-                            m("label", {"for":"nombre-registrar"}, 
-                                "Nombre:"
-                            ),
-                            m("br"),
-                            m("input", {"class":"nombre-registrar campo-sesion","type":"text","id":"nombre-registrar","name":"nombre-registrar"}),
-                            m("br"),
-                            m("br"),
-                            m("label", {"for":"email-registrar"}, 
+                            m("label", {
+                                "for":"email-registrar"}, 
                                 "Email:"
                             ),
                             m("br"),
-                            m("input", {"class":"email-registrar campo-sesion","type":"email","id":"email-registrar","name":"email-registrar"}),
+                            m("input", {
+                                oncreate:(e)=>{
+                                    inputemailregistro = e.dom
+                                }, 
+                                "class":"email-registrar campo-sesion","type":"email","id":"email-registrar","name":"email-registrar"}),
                             m("br"),
                             m("br"),
                             m("label", {"for":"username-registrar"}, 
                                 "Nombre de Usuario:"
                             ),
                             m("br"),
-                            m("input", {"class":"username-registrar campo-sesion","type":"text","id":"username-registrar","name":"username-registrar"}),
+                            m("input", {
+                                oncreate:(e)=>{
+                                    inputusuarioregistro = e.dom
+                                }, 
+                                "class":"username-registrar campo-sesion","type":"text","id":"username-registrar","name":"username-registrar"}),
                             m("br"),
                             m("br"),
                             m("label", {"for":"passwd-registrar"}, 
                                 "Contraseña: "
                             ),
                             m("br"),
-                            m("input", {"class":"passwd-registrar campo-sesion","type":"password","id":"passwd-registrar","name":"passwd-registrar","title":"Debe contener al menos una letra y un numero. Debe tener mas de seis caracteres y menos de 20"}),
+                            m("input", {
+                                oncreate:(e)=>{
+                                    inputcontrasenaregistro = e.dom
+                                }, 
+                                "class":"passwd-registrar campo-sesion","type":"password","id":"passwd-registrar","name":"passwd-registrar","title":"Debe contener al menos una letra y un numero. Debe tener mas de seis caracteres y menos de 20"}),
                             m("br"),
                             m("br"),
                             m("p", {"class":"respuestaregistrar"}),
-                            m("button", {"class":"btnregistrar boton"}, 
+                            m("button", {
+                                onclick:()=>{
+                                    insertarUsuario(inputemailregistro.value, inputusuarioregistro.value, inputcontrasenaregistro.value)
+                                },
+                                "class":"btnregistrar boton"
+                            }, 
                                 "Registrarse"
                             ),
                             m("br"),
@@ -437,69 +446,6 @@ function Login(){
         
     }
 }
-
-function VerImagen() {
-    return {
-        view:()=>[
-            m("div", [
-                m("img", { 
-                    src: "../img/banderas/albania.gif", style: "display:none;",
-                    oncreate:(e)=>{
-
-                    }
-                }),
-                m("canvas", { style: "display:none;" }),
-                m("div", vnode.state.parts && vnode.state.parts.map(part => m("img", { src: part, style: "margin:5px;" })))
-            ])
-        ]
-    }
-}
-// function ImageSplitter(){
-//     return {
-//         // oncreate: (vnode) => {
-//         //     const img = vnode.dom.querySelector('img');
-//         //     const canvas = vnode.dom.querySelector('canvas');
-    
-//         //     img.onload = () => {
-//         //         const ctx = canvas.getContext('2d');
-//         //         const { width, height } = img;
-//         //         const partWidth = width / 3;
-//         //         const partHeight = height / 2;
-    
-//         //         // Ajustar el tamaño del canvas para que contenga la imagen completa
-//         //         canvas.width = width;
-//         //         canvas.height = height;
-    
-//         //         // Dibujar la imagen en el canvas
-//         //         ctx.drawImage(img, 0, 0, width, height);
-    
-//         //         const parts = [];
-    
-//         //         for (let i = 0; i < 2; i++) {
-//         //             for (let j = 0; j < 3; j++) {
-//         //                 const partCanvas = document.createElement('canvas');
-//         //                 const partCtx = partCanvas.getContext('2d');
-    
-//         //                 partCanvas.width = partWidth;
-//         //                 partCanvas.height = partHeight;
-    
-//         //                 partCtx.drawImage(canvas, j * partWidth, i * partHeight, partWidth, partHeight, 0, 0, partWidth, partHeight);
-                        
-//         //                 parts.push(partCanvas.toDataURL());
-//         //             }
-//         //         }
-    
-//         //         vnode.state.parts = parts;
-//         //         m.redraw();
-//         //     };
-//         // },
-//         view:()=>
-            
-            
-        
-//     }
-    
-// };
 
 function Nivel () {
     let nivel = ""
@@ -636,7 +582,7 @@ function Nivel () {
                                     ]
                                 )
                                 : null,
-                                //IMAGENES NIVEL EDIO
+                                //IMAGENES NIVEL MEDIO
                                 attrs.nivel == "Medio"
                                 ? [
                                     m("div", {"class":"ui center aligned segment"},
@@ -691,13 +637,15 @@ function Nivel () {
                                     style: {display: "flex", justifyContent: "center", alignItems: "center"}
                                     }, 
                                         m("div", {"id":"palabras"},
-                                            nombrepais?.length 
+                                            
+                                            //console.log(inputs.length, inputs),
+                                            nombrepais?.length
                                             ? nombrepais.split("").map((letra,index) => {
                                                 return m("input", {
                                                     maxLength: 1, 
-                                                    value: letra=="_" ? letra : null,
-                                                    readOnly: letra=="_" ? true : false,
                                                     key: index,
+                                                    value: letra == "_" ? "_" : null,
+                                                    readOnly: letra == "_" ? true : false,
                                                     style: {
                                                         width : "98px",
                                                         height : "100px",
@@ -706,25 +654,29 @@ function Nivel () {
                                                         borderRadius : "10px",
                                                         margin : "4px",
                                                         textAlign : "center",
-                                                        fontSize : "50px"
+                                                        fontSize : "50px",
+                                                        backgroundColor: letra == "_" ? "gray" : "transparent"
+
                                                     },
                                                     oncreate: (e)=>{
-                                                        inputs.push(e.dom)
                                                         if (letra == "_") {
                                                             letrasUsuario[index] = "_"
-                                                            e.dom.style.backgroundColor = "gray"
                                                         }
+                                                        else {
+                                                            letrasUsuario[index] = ""
+                                                        }
+                                                        inputs[index] = e.dom
+                                                        focusinputvacio()
                                                     },
                                                     oninput:(e)=>{
                                                         e.target.value = e.target.value.toUpperCase();
-                                                
+                                                        
                                                         if (!e.target.value.match(/^[A-ZÑ]$/)) {
-                                                            
-                                                            e.target.value = "";
-                                                        } 
+                                                            e.target.value = ""
+                                                        }
                                                         else {
                                                             if (e.target.value.length == e.target.maxLength) {
-                                                                let nextInput = e.target.nextElementSibling;
+                                                                let nextInput = e.target.nextElementSibling
                                                                 while (nextInput && (nextInput.readOnly || !nextInput.matches("input"))) {
                                                                     nextInput = nextInput.nextElementSibling;
                                                                 }
@@ -733,7 +685,9 @@ function Nivel () {
                                                                 }
                                                             }
                                                             
-                                                            letrasUsuario[index]= e.target.value
+                                                            if(e.target.value != "_"){
+                                                                letrasUsuario[index]= e.target.value
+                                                            }
                                                             
                                                         }
                                                         console.log(letrasUsuario)
@@ -764,16 +718,21 @@ function Nivel () {
                                                                 }
                                                             }
                                                             
-                                                            letrasUsuario[index]= e.target.value
+                                                            if(e.target.value != "_"){
+                                                                letrasUsuario[index]= e.target.value
+                                                            }
                                                             console.log(letrasUsuario)
                                                         }
-                                                    }
+                                                    },
+                                                
                                                 },
                                                 )
                                             })
                                             
                                             : null
-                                        )
+                                        ),
+                                        
+                                        
                                 ),
                                 //BOTONES
                                 m("div", {"class":"ui center aligned segment"},
@@ -786,17 +745,18 @@ function Nivel () {
                                             "Volver al inicio"
                                         ),
                                         attrs.nivel == "Fácil"
-                                        ? m("button", {"class":"pista boton"}, 
+                                        ? m("button", {
+                                            "class":"pista boton",
+                                            onclick:()=>{
+                                                pista()
+                                            }
+                                        }, 
                                             "Pista"
                                         ) 
                                         : null,
                                         m("button", {
                                             "class":"comprobar boton",
                                             onclick:()=>{
-                                                respuesta = ""
-                                                letrasUsuario.map(l => {
-                                                    respuesta += l
-                                                })
                                                 console.log(respuesta)
                                                 if(resuelto != true){
                                                     perder(respuesta)
@@ -809,6 +769,7 @@ function Nivel () {
                                             "class":"siguiente boton",
                                             onclick:()=>{
                                                 siguientenivel()
+                                                
                                             }
                                             }, 
                                             "Siguiente"
@@ -910,7 +871,7 @@ function Nivel () {
                             "Puntuación Obtenida: " + puntos + " Puntos"
                         ),
                         m("h3", {"class":"puntuacionRecord"}, 
-                            "Récord Puntuación: " + (attrs.nivel == "facil" ? recordsUsuario.recordfacil : attrs.nivel == "medio" ? recordsUsuario.recordmedio : recordsUsuario.recorddificil)
+                            "Récord Puntuación: " + (attrs.nivel == "facil" ? recordsUsuario.recordfacil : attrs.nivel == "Medio" ? recordsUsuario.recordmedio : recordsUsuario.recorddificil)
                     
                         ),
                         m("div", {
@@ -942,6 +903,7 @@ function Nivel () {
                         ),
                         m("br"),
                         m("button", {
+                            style: {width:"50%"},
                             "class":"volverIntentar boton",
                             onclick:()=>{
                                 location.reload()
@@ -949,6 +911,7 @@ function Nivel () {
                             "Volver a Intentar"
                         ),
                         m("button", {
+                            style: {width:"50%"},
                             "class":"volverMenu boton",
                             onclick:()=>{
                                 location.href = "./"
@@ -1005,6 +968,7 @@ function Nivel () {
                             ),
                             m("br"),
                             m("button", {
+                                style: {width:"50%"},
                                 "class":"volverIntentar boton",
                                 onclick:()=>{
                                     location.reload()
@@ -1012,6 +976,7 @@ function Nivel () {
                                 "Volver a Intentar"
                             ),
                             m("button", {
+                                style: {width:"50%"},
                                 "class":"volverMenu boton",
                                 onclick:()=>{
                                     location.href = "./"
@@ -1025,9 +990,11 @@ function Nivel () {
                 )
                 : null
             ]
+            
   }
+  
 
-    function pintarbanderaDificil() {
+    function pintarImagenDificil() {
         //depende del número del fallo que ha cometido el usuario pone una imagen o otra
         numimagen++
         let imagen = ""
@@ -1080,109 +1047,47 @@ function Nivel () {
                 }
             }
         });
-
-        
         
         pais();
-        recortarImagen()
-
-    // Compruebo si estás logeado para dejarte entrar a la página o no
-    // $.ajax({
-    //     url: '../servidor/islogged.php',
-    //     type: 'GET',
-    //     datatype: "JSON",
-    //     async: false,
-    //     success: function (datos) {
-    //         datos_parse = JSON.parse(datos);
-    //         if (datos_parse == 0) {
-    //             location.href = "../html_css/index.html";
-    //         }
-    //     },
-    //     error: function (xhr, textStatus, errorMessage) {
-    //         console.log("ERROR" + errorMessage + textStatus + xhr);
-    //     }
-    // });
-
-    // // Pulsas el botón pista y te da una pista
-    // document.querySelector(".pista").addEventListener("click", pista);
-
-    // Si pulsas el enter te comprueba y si pulsas el espacio te lleva al siguiente nivel
-    
-
-    // Desplegable de paises en las puntuaciones de ganar y perder
-    // document.getElementsByClassName(".contenedorpaisesacertados").addEventListener("click", function () {
-    //     let contenedor = document.getElementsByClassName(".contenedorpaisesypuntuaciones");
-    //     if (cerrado) {
-    //         contenedor.style.display = "block";
-    //         cerrado = false;
-    //     } else {
-    //         contenedor.style.display = "none";
-    //         cerrado = true;
-    //     }
-    // });
-
-    
-    
-    
-
-        function pista() {
-            // Si pulsas al botón pista te muestra una letra al azar en el nombre del país
-            let respuesta = document.querySelectorAll(".hola");
-            let letraaleatoria;
-
-            if (resuelto != true) {
-                if (pistasutilizadas < 2) {
-                    pistasutilizadas++;
-                    do {
-                        letraaleatoria = Math.floor(Math.random() * respuesta.length);
-                    } while (respuesta[letraaleatoria].readOnly);
-
-                    respuesta[letraaleatoria].value = paisseleccionado[letraaleatoria];
-                    respuesta[letraaleatoria].style.backgroundColor = "gray";
-                    respuesta[letraaleatoria].readOnly = true;
-                }
-            }
+        if(nivel == "Medio"){
+            recortarImagenMedio()
         }
-
-        
-
-        
-
-        function focusinputvacio() {
-            // Te lleva al primer input vacío para escribir
-            let primerinputvacio = 0;
-            while (document.getElementById(primerinputvacio).readOnly) {
-                primerinputvacio++;
-            }
-            document.getElementById(primerinputvacio).focus();
-        }
-
-        function almacenardatos(puntos) {
-        // Almacena el record del nivel fácil
-        $.ajax({
-            url: '../servidor/almacenarpuntos.php',
-            type: 'POST',
-            datatype: "JSON",
-            async: false,
-            data: {
-                puntos: puntos,
-                nivel: "facil"
-            },
-            success: function (datos) {},
-            error: function (xhr, textStatus, errorMessage) {
-                console.log("ERROR" + errorMessage + textStatus + xhr);
-            }
-        });
-        }
-
-
     }
 
-    
+    function focusinputvacio() {
+        // Te lleva al primer input vacío para escribir
+        let primerinputvacio = 0;
+        
+            while (inputs[primerinputvacio]?.readOnly) {
+                if(primerinputvacio < inputs.length){
+                    primerinputvacio++;
+                }
+            }
+            inputs[primerinputvacio]?.focus();
+        
+        
+    }
 
-    function pintarbandera() {
-        console.log(imagenes)
-        console.log(urls)
+    function pista() {
+        // Si pulsas al botón pista te muestra una letra al azar en el nombre del país
+        let letraaleatoria;
+
+        if (resuelto != true) {
+            if (pistasutilizadas < 2) {
+                pistasutilizadas++;
+                do {
+                    letraaleatoria = Math.floor(Math.random() * nombrepais.length);
+                } while (inputs[letraaleatoria].readOnly);
+
+                inputs[letraaleatoria].value = nombrepais[letraaleatoria];
+                inputs[letraaleatoria].style.backgroundColor = "gray";
+                inputs[letraaleatoria].readOnly = true;
+                letrasUsuario[letraaleatoria] = nombrepais[letraaleatoria]
+            }
+        }
+    }
+
+    function pintarBanderaMedio() {
         let numeroaleatorio = Math.floor(Math.random() * 6);
         console.log(numeroaleatorio)
         
@@ -1190,23 +1095,23 @@ function Nivel () {
         let urlselec = urls[numeroaleatorio]
     
         if (urlselec in imagenesutilizadas) {
-            pintarbandera()
+            pintarBanderaMedio()
         }
         else {
             imagenes[numeroaleatorio].style.backgroundImage =  'url("' + urls[numeroaleatorio] + '")'
             imagenes[numeroaleatorio].style.backgroundRepeat = "no-repeat"
             imagenesutilizadas[urlselec] = true
-            console.log(imagenesutilizadas)
         }
     
         if (resuelto == true) {
+            
             for (let i = 0; i < 6; i++) {
                 imagenes[i].style.backgroundImage = 'url("' + urls[i] + '")'
             }
         }
     }
     
-    function recortarImagen() {
+    function recortarImagenMedio() {
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");
     
@@ -1256,21 +1161,36 @@ function Nivel () {
     function siguientenivel() {
         // Reinicia las variable y muestra otro país
         if (resuelto == true) {
-            inputs.map(i => {
-                i.value = ""
-                i.style.backgroundColor = "transparent"
-                i.readOnly = false
-            })
+            
             numaleatorio = Math.floor(Math.random() * 50) + 1;
             puntosporronda = 60;
             contador = 0;
             letrasUsuario = []
             pistasutilizadas = 0;
             resuelto = false;
-            pais();
-            for (let i = 0; i < 6; i++) {
-                imagenes[i].style.backgroundImage = 'url("")'
+            respuesta = ""
+            inputs.map(i => {
+                i.value = ""
+                i.style.backgroundColor = "transparent"
+                i.readOnly = false
+                console.log(i.value)
+            })
+            if(nivel == "Difícil"){
+                imgcapital.innerText = ""
+                imgfamoso.style.backgroundImage = 'url("")'
+                imghabitantes.innerText = ""
+                imgsilueta.style.backgroundImage = 'url("")'
+                imgmonumento.style.backgroundImage = 'url("")'
             }
+            numimagen = 0
+            pais();
+            if(nivel == "Medio"){
+                for (let i = 0; i < 6; i++) {
+                    imagenes[i].style.backgroundImage = 'url("")'
+                }
+            }
+                
+            
         }
     }
 
@@ -1283,14 +1203,14 @@ function Nivel () {
         .then(paises => {
             for (let i = 0; i < paises.length; i++) {
                 if (paises[i].id_pais == numaleatorio) {
-                    nombrepais = paises[i].nombre.toUpperCase();
-                    idpais = paises[i].id_pais;
-                    capitalpais = paises[i].capital;
-                    habitantespais = paises[i].habitantes;
-                    monumentopais = paises[i].monumento;
-                    siluetapais = paises[i].silueta;
-                    famosopais = paises[i].persona_Famosa;
-                    banderapais = paises[i].bandera;
+                    nombrepais = paises[i].nombre.toUpperCase()
+                    idpais = paises[i].id_pais
+                    capitalpais = paises[i].capital
+                    habitantespais = paises[i].habitantes
+                    monumentopais = paises[i].monumento
+                    siluetapais = paises[i].silueta
+                    famosopais = paises[i].persona_Famosa
+                    banderapais = paises[i].bandera
                     console.log(nombrepais)
                 }
             }
@@ -1301,10 +1221,14 @@ function Nivel () {
                 numaleatorio = Math.floor(Math.random() * 50) + 1;
                 pais();
             } else {
-                recortarImagen()
+                if(nivel == "Medio"){
+                    recortarImagenMedio()
+                }
+                focusinputvacio();
+                
         
                 
-                //focusinputvacio();
+                
         
             }
             }).catch(function (e) {
@@ -1313,55 +1237,40 @@ function Nivel () {
         
     }
 
-    function puntuaciones() {
-        // Ventana modal con las puntuaciones de la partida cuando pierdes
-        //almacenardatos(puntos);
-        //document.querySelector(".puntuacionObtenida").innerHTML += puntos + " Puntos";
-        //document.querySelector(".puntuacionRecord").innerHTML += puntos + " Puntos";
-        for (let key in paisesmostrados) {
-            if (paisesmostrados.hasOwnProperty(key)) {
-                //document.querySelector(".paisesypuntuaciones").innerHTML += key + ": " + paisesmostrados[key].Puntuaje + " Puntos<br>";
-            }
-        }
-        // document.querySelector(".volverIntentar").addEventListener("click", function () {
-        //     location.href = "../html_css/nivelfacil.html";
-        // });
-        // document.querySelector(".volverMenu").addEventListener("click", function () {
-        //     puntos = 0;
-        //     location.href = "../html_css/inicio.html";
-        // });
-    }
-
-    function perder(respuesta) {
+    function perder() {
         // Si haces más de 5 fallos pierdes la partida
         if (contador < 5) {
             contador++;
-
-            comprobar(respuesta);
+            comprobar();
         } else if (contador == 5) {
-            comprobar(respuesta);
+            comprobar();
             if (resuelto == false) {
                 fin = true;
-                puntuaciones();
                 modalperder = true
             }
         }
     }
     
-    function comprobar(respuesta) {
-        
-        console.log(inputs)
-        console.log(puntosporronda)
+    function comprobar() {
+        nombrepais.split("").map((letra,index) => {
+            if(letra == "_"){
+                console.log("letra " + letra)
+                letrasUsuario[index] = letra
+            }
+            respuesta += letrasUsuario[index]
+        })
         comprobarrespuesta(respuesta);
         // Comprueba todas las letras para ver cuales están en la posición correcta
-        for (let i = 0; i < inputs.length; i++) {
-            if (inputs[i].value != nombrepais[i]) {
+        for (let i = 0; i < letrasUsuario.length; i++) {
+            if (letrasUsuario[i] != nombrepais[i]) {
+                console.log("aqui")
                 inputs[i].value = ""
+                letrasUsuario[i] = ""
             }
             else {
-                    inputs[i].style.backgroundColor = "green"
-                    inputs[i].readOnly = true;
-                
+                inputs[i].style.backgroundColor = "green"
+                inputs[i].readOnly = true;
+
             }
         }
 
@@ -1370,28 +1279,42 @@ function Nivel () {
         if (resuelto != true) {
             
             puntosporronda -= 10;
-            pintarbandera()
-            //pintarbanderaDificil()
+            if(nivel == "Medio"){
+                pintarBanderaMedio()
+            }
+            else if(nivel == "Difícil"){
+                pintarImagenDificil()
+            }
+            respuesta = ""
         }
         else{
-            pintarbandera()
+            // letrasUsuario.map((letra, index) =>{
+            //     inputs[index].value = letra
+            //     inputs[index].style.backgroundColor = "green"
+            //     console.log(inputs[index].style.backgroundColor)
+            // })
+            
+            if(nivel == "Medio"){
+                pintarBanderaMedio()
+            }
         }
 
-        if (Object.keys(paisesmostrados).length == 2) {
+        if (Object.keys(paisesmostrados).length == 5) {
             console.log(paisesmostrados.length)
             fin = true;
             almacenarPartida();
+            almacenarRecord();
             modalganar = true
         }
-        //focusinputvacio();
+        
         
     }
     
     function comprobarrespuesta(respuesta) {
-        console.log(respuesta)
-        console.log(nombrepais)
+        console.log("Respuesta" + respuesta)
         if (nombrepais == respuesta) {
             paisesmostrados[nombrepais] = { "Adivinado": true, "Puntuaje": puntosporronda };
+            console.log(paisesmostrados)
             resuelto = true;
             puntos += puntosporronda;
         }
@@ -1428,33 +1351,44 @@ function Nivel () {
     }
 
     function almacenarRecord() {
-        // let paisesacertados = ""
-        // Object.keys(paisesmostrados).map(pais => {
-        //     paisesacertados += pais.toLowerCase() + ", "
-        // })
-        // console.log(emailUsuario, paisesacertados, puntos, nivel)
+            let puntostotales = 0
+            let puntosfacil = recordsUsuario.recordfacil
+            let puntosmedio = recordsUsuario.recordmedio
+            let puntosdificil = recordsUsuario.recorddificil
+            let recordpuntos = recordsUsuario.totalrecord
+
+            if(nivel == "Fácil"){
+                puntostotales = puntos + puntosmedio + puntosdificil
+            }
+            else if(nivel == "Medio"){
+                puntostotales = puntos + puntosfacil + puntosdificil
+            }
+            else{
+                puntostotales = puntos + puntosmedio + puntosfacil
+            }
+            m.request({
+                method: "PUT",
+                url:'/api/records/' + emailUsuario,
+                body: {
+                    email: emailUsuario,
+                    recordfacil: puntos > puntosfacil && nivel =="Fácil" ? puntos : puntosfacil,
+                    recordmedio: puntos > puntosmedio && nivel =="Medio" ? puntos : puntosmedio,
+                    recorddificil: puntos > puntosdificil && nivel =="Difícil" ? puntos : puntosdificil,
+                    totalrecord: puntostotales > recordpuntos ? puntostotales : recordpuntos
+                },
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(function(response) {
+                console.log("Record guardada:", response);
+                // Limpiar el formulario después de guardar
+                
+            })
+            .catch(function(error) {
+                console.log("Error al guardar el record:", error);
+            })
         
-        // m.request({
-        //     method: "POST",
-        //     url:'/api/records',
-        //     body: {
-        //         email: emailUsuario,
-        //         paisesacertados: paisesacertados,
-        //         puntuacion: puntos,
-        //         nivel: nivel
-        //     },
-        //     headers: {
-        //         "Content-Type": "application/json"
-        //     }
-        // })
-        // .then(function(response) {
-        //     console.log("Partida guardada:", response);
-        //     // Limpiar el formulario después de guardar
-        //     paisesacertados = ""
-        // })
-        // .catch(function(error) {
-        //     console.log("Error al guardar el usuario:", error);
-        // })
     }
 
 
@@ -1491,12 +1425,16 @@ function InicioSesion(email, contrasena) {
         url:'/api/usuarios/'+email
     })
     .then(usuarios => {
-        // Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
+        usuarios.contrasena = desencriptarContrasena(usuarios.contrasena)
+        console.log(usuarios.contrasena)
+        //Hacer algo con el usuario, como mostrarlo en la interfaz de usuario
         if(email == usuarios.email && contrasena == usuarios.contrasena){
+            console.log("si")
             saveUsuarioLocalStorage(usuarios.email, usuarios.nombreusuario, usuarios.contrasena)
             location.href = "./index.html#!inicio"
         }
         else {
+            console.log("no")
             return false
         }
     })
@@ -1504,6 +1442,7 @@ function InicioSesion(email, contrasena) {
 }
 
 function insertarUsuario(email, nombreusuario, contrasena){
+    contrasena = encriptarContrasena(contrasena)
     m.request({
         method: "POST",
         url:'/api/usuarios',
@@ -1528,14 +1467,16 @@ function insertarUsuario(email, nombreusuario, contrasena){
     })
 }
 
-function actualizarUsuario(email, nombreusuario, contrasena){
+function actualizarUsuario(email, nombreusuario){
+    console.log(email, nombreusuario, contrasenaUsuario)
+    contrasenaUsuario = encriptarContrasena(contrasenaUsuario)
     m.request({
-        method: "POST",
-        url:'/api/usuarios',
+        method: "PUT",
+        url:'/api/usuarios/'+email,
         body: {
             email: email,
             nombreusuario: nombreusuario,
-            contrasena: contrasena
+            contrasena: contrasenaUsuario
         },
         headers: {
             "Content-Type": "application/json"
@@ -1575,7 +1516,7 @@ function saveUsuarioLocalStorage(email, nombreusuario, contrasena){
     var usuario = {
         email: email,
         nombreusuario: nombreusuario,
-        contrasena: contrasena
+        contrasena: encriptarContrasena(contrasena)
     };
     localStorage.setItem('usuario', JSON.stringify(usuario));
     console.log("Usuario guardado en localStorage:", usuario);
@@ -1586,7 +1527,7 @@ function recuperarUsuarioLocalStorage() {
     if (usuario) {
         usuarioconectado = true
         emailUsuario = usuario.email
-        contrasenaUsuario = usuario.contrasena
+        contrasenaUsuario = desencriptarContrasena(usuario.contrasena)
         nombreUsuario = usuario.nombreusuario
         console.log("Usuario cargado desde localStorage:", usuario);
     }
@@ -1624,312 +1565,12 @@ function rankingGlobal(){
     })
 }
 
-
-
-
-
-
-/*
-function NivelDificil () {
-    return {
-        view:()=>[
-            
-                m("div", {"class":"ui center aligned segment"}, 
-                    m("h1", {"class":"ui header"}, 
-                        "Nivel Difícil"
-                    )
-                ), 
-                m("div", {"class":"ui grid"},
-                    [
-                        m("div", {"class":"two wide column"}, 
-                            m("div", {"class":"ui center aligned segment palabrascontenido"},
-                                [
-                                    m("h2", 
-                                        "Resumen Partida"
-                                    ),
-                                    m("h4", 
-                                        "Puntos en ronda actual: "
-                                    ),
-                                    m("p", {"class":"puntosronda"}, 
-                                        "60 puntos"
-                                    ),
-                                    m("h4", 
-                                        "Puntos en partida: "
-                                    ),
-                                    m("p", {"class":"puntospartida"}, 
-                                        "0 puntos"
-                                    )
-                                ]
-                            )
-                        ),
-                        m("div", {"class":"twelve wide column"},
-                            [
-                                
-                                m("div", {"class":"ui center aligned segment palabrascontenido"}, 
-                                    m("div", {"class":"palabras"})
-                                ),
-                                m("div", {"class":"ui center aligned segment"},
-                                    [
-                                        m("button", {
-                                          // "href":"./index.html",
-                                          "class":"volverinicio boton",
-                                          onclick:()=>{
-                                              location.href="./"
-                                          }}, 
-                                            "Volver al inicio"
-                                        ),
-                                      //   m("button", {"class":"comprobar boton"}, 
-                                      //       "Comprobar"
-                                      //   ),
-                                      //   m("button", {"class":"siguiente boton"}, 
-                                      //       "Siguiente"
-                                      //   )
-                                    ]
-                                ),
-                                m("div", {"class":"ui center aligned segment"},
-                                    
-                                )
-                            ]
-                        ),
-                        m("div", {"class":"two wide column"}, 
-                        )
-                    ]
-                ), 
-                m("canvas", {"id":"canvas"}), 
-                m("img", {"id":"imagen","style":{"display":"none"}}), 
-                m("div", {"class":"modal","id":"ventanaModal"},
-                    [
-                        m("div", {"class":"cerrarimagen"}, 
-                            m.trust("&times;")
-                        ),
-                        m("img", {"id":"imagenmodal"})
-                    ]
-                ), 
-                m("div", {"class":"modal","id":"ventanaModalPerder"}, 
-                    m("div", {"class":"modal-perder"},
-                        [
-                            m("h1", 
-                                "Has Perdido!"
-                            ),
-                            m("h3", 
-                                "Nivel: Difícil"
-                            ),
-                            m("h3", {"class":"puntuacionObtenida"}, 
-                                "Puntuación Obtenida: "
-                            ),
-                            m("h3", {"class":"puntuacionRecord"}, 
-                                "Récord Puntuación: "
-                            ),
-                            m("div.contenedorpaisesacertados", {"class":"contenedorpaisesacertados"},
-                                [
-                                    m("h3", {"class":"titulopaisesacertados"}, 
-                                        "Ver paises acertados"
-                                    ),
-                                    m("div.contenedorpaisesypuntuaciones", {"class":"contenedorpaisesypuntuaciones"}, 
-                                        m("p", {"class":"paisesypuntuaciones"})
-                                    )
-                                ]
-                            ),
-                            m("br"),
-                            m("button", {"class":"volverIntentar boton"}, 
-                                "Volver a Intentar"
-                            ),
-                            m("button", {"class":"volverMenu boton"}, 
-                                "Volver al Menú Principal"
-                            )
-                        ]
-                    )
-                ), 
-                m("div", {"class":"modal","id":"ventanaModalGanar"}, 
-                    m("div", {"class":"modal-ganar"},
-                        [
-                            m("h1", 
-                                "Enhorabuena has acertado todos!"
-                            ),
-                            m("h3", 
-                                "Nivel: Difícil"
-                            ),
-                            m("h3", {"class":"puntuacionObtenida"}, 
-                                "Puntuación Obtenida: "
-                            ),
-                            m("h3", {"class":"puntuacionRecord"}, 
-                                "Récord Puntuación: "
-                            ),
-                            m("div", {"class":"contenedorpaisesacertados"},
-                                [
-                                    m("h3", {"class":"titulopaisesacertados"}, 
-                                        "Ver paises acertados"
-                                    ),
-                                    m("div", {"class":"contenedorpaisesypuntuaciones"}, 
-                                        m("p", {"class":"paisesypuntuaciones"})
-                                    )
-                                ]
-                            ),
-                            m("br"),
-                            m("button", {"class":"volverIntentar boton"}, 
-                                "Volver a Intentar"
-                            ),
-                            m("button", {"class":"volverMenu boton"}, 
-                                "Volver al Menú Principal"
-                            )
-                        ]
-                    )
-                )
-            
-        ]
-    }
-  }
-
-function NivelMedio () {
-  return {
-      view: ()=>[
-          [
-              m("div", {"class":"ui center aligned segment"}, 
-                  m("h1", {"class":"ui header"}, 
-                      "Nivel Medio"
-                  )
-              ), 
-              m("div", {"class":"ui grid"},
-                  [
-                      m("div", {"class":"two wide column"}, 
-                          m("div", {"class":"ui center aligned segment palabrascontenido"},
-                              [
-                                  m("h2", 
-                                      "Resumen Partida"
-                                  ),
-                                  m("h4", 
-                                      "Puntos en ronda actual: "
-                                  ),
-                                  m("p", {"class":"puntosronda"}, 
-                                      "60 puntos"
-                                  ),
-                                  m("h4", 
-                                      "Puntos en partida: "
-                                  ),
-                                  m("p", {"class":"puntospartida"}, 
-                                      "0 puntos"
-                                  )
-                              ]
-                          )
-                      ),
-                      m("div", {"class":"twelve wide column"},
-                          [
-                              
-                              m("div", {"class":"ui center aligned segment palabrascontenido"}, 
-                                  m("div", {"class":"palabras"})
-                              ),
-                              m("div", {"class":"ui center aligned segment"},
-                                  [
-                                      m("button", {"class":"volverinicio boton"}, 
-                                          "Volver al inicio"
-                                      ),
-                                      m("button", {"class":"comprobar boton"}, 
-                                          "Comprobar"
-                                      ),
-                                      m("button", {"class":"siguiente boton"}, 
-                                          "Siguiente"
-                                      )
-                                  ]
-                              ),
-                              m("div", {"class":"ui center aligned segment"},
-                                  
-                              )
-                          ]
-                      ),
-                      m("div", {"class":"two wide column"}, 
-                      )
-                  ]
-              ), 
-               
-              m("div", {"class":"modal","id":"ventanaModalPerder"}, 
-                  m("div", {"class":"modal-perder"},
-                      [
-                          m("h1", 
-                              "Has Perdido!"
-                          ),
-                          m("h3", 
-                              "Nivel: Medio"
-                          ),
-                          m("h3", {"class":"puntuacionObtenida"}, 
-                              "Puntuación Obtenida: "
-                          ),
-                          m("h3", {"class":"puntuacionRecord"}, 
-                              "Récord Puntuación: "
-                          ),
-                          m("div", {"class":"contenedorpaisesacertados"},
-                              [
-                                  m("h3", {"class":"titulopaisesacertados"}, 
-                                      "Ver paises acertados"
-                                  ),
-                                  m("div", {"class":"contenedorpaisesypuntuaciones"}, 
-                                      m("p", {"class":"paisesypuntuaciones"})
-                                  )
-                              ]
-                          ),
-                          m("br"),
-                          m("button", {"class":"volverIntentar boton"}, 
-                              "Volver a Intentar"
-                          ),
-                          m("button", {"class":"volverMenu boton"}, 
-                              "Volver al Menú Principal"
-                          )
-                      ]
-                  )
-              ), 
-              m("div", {"class":"modal","id":"ventanaModalGanar"}, 
-                  m("div", {"class":"modal-ganar"},
-                      [
-                          m("h1", 
-                              "Enhorabuena has acertado todos!"
-                          ),
-                          m("h3", 
-                              "Nivel: Medio"
-                          ),
-                          m("h3", {"class":"puntuacionObtenida"}, 
-                              "Puntuación Obtenida: "
-                          ),
-                          m("h3", {"class":"puntuacionRecord"}, 
-                              "Récord Puntuación: "
-                          ),
-                          m("div", {"class":"contenedorpaisesacertados"},
-                              [
-                                  m("h3", {"class":"titulopaisesacertados"}, 
-                                      "Ver paises acertados"
-                                  ),
-                                  m("div", {"class":"contenedorpaisesypuntuaciones"}, 
-                                      m("p", {"class":"paisesypuntuaciones"})
-                                  )
-                              ]
-                          ),
-                          m("br"),
-                          m("button", {"class":"volverIntentar boton"}, 
-                              "Volver a Intentar"
-                          ),
-                          m("button", {"class":"volverMenu boton"}, 
-                              "Volver al Menú Principal"
-                          )
-                      ]
-                  )
-              )
-          ]
-      ]
-  }
+function encriptarContrasena(contrasena){
+    var encrypted = CryptoJS.AES.encrypt(contrasena, key).toString();
+    return encrypted
 }
-*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function desencriptarContrasena(contrasena){
+    var decrypted = CryptoJS.AES.decrypt(contrasena, key).toString(CryptoJS.enc.Utf8);
+    return decrypted
+}

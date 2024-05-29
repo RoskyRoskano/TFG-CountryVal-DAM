@@ -28,4 +28,8 @@ public class UsuarioService {
     public void delete(String email){
         usuarioRepository.deleteById(email);
     }
+
+    public Usuario actualizarUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
 }

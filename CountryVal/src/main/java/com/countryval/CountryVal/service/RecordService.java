@@ -29,4 +29,8 @@ public class RecordService {
     public void delete(String email){
         recordRepository.deleteById(email);
     }
+
+    public Record actualizarRecord(Record record) {
+        return recordRepository.save(record);
+    }
 }
