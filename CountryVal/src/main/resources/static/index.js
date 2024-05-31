@@ -287,6 +287,7 @@ function Inicio(){
 }
 
 function Login(){
+
     let registro = false
     let inputemail
     let inputcontrasena
@@ -490,7 +491,7 @@ function Nivel () {
             nivel = attrs.nivel
         },
         oncreate:()=> {
-            FuncionalidadLvlFacil()
+            FuncionalidadNivel()
         },
         view:({attrs})=> 
              [
@@ -666,7 +667,7 @@ function Nivel () {
                                                             letrasUsuario[index] = ""
                                                         }
                                                         inputs[index] = e.dom
-                                                        focusinputvacio()
+                                                        focusInputVacio()
                                                     },
                                                     oninput:(e)=>{
                                                         e.target.value = e.target.value.toUpperCase();
@@ -759,7 +760,7 @@ function Nivel () {
                                             onclick:()=>{
                                                 console.log(respuesta)
                                                 if(resuelto != true){
-                                                    perder(respuesta)
+                                                    comprobarClicked(respuesta)
                                                 }
                                             }
                                         }, 
@@ -1032,58 +1033,167 @@ function Nivel () {
         }
     }
 
-   
-
-    function FuncionalidadLvlFacil(){
-
-
-        document.addEventListener('keypress', function (e) {
-            if (fin == false) {
-                if (e.which == 13) {
-                    letrasUsuario.map(l => {respuesta += l})
-                    perder(respuesta);
-                } else if (e.which == 32) {
-                    siguientenivel();
+    function siguientenivel() {
+        // Reinicia las variable y muestra otro país
+        if (resuelto == true) {
+            
+            numaleatorio = Math.floor(Math.random() * 50) + 1;
+            puntosporronda = 60;
+            contador = 0;
+            letrasUsuario = []
+            pistasutilizadas = 0;
+            resuelto = false;
+            respuesta = ""
+            inputs.map(i => {
+                i.value = ""
+                i.style.backgroundColor = "transparent"
+                i.readOnly = false
+                console.log(i.value)
+            })
+            if(nivel == "Difícil"){
+                imgcapital.innerText = ""
+                imgfamoso.style.backgroundImage = 'url("")'
+                imghabitantes.innerText = ""
+                imgsilueta.style.backgroundImage = 'url("")'
+                imgmonumento.style.backgroundImage = 'url("")'
+            }
+            numimagen = 0
+            pais();
+            if(nivel == "Medio"){
+                for (let i = 0; i < 6; i++) {
+                    imagenes[i].style.backgroundImage = 'url("")'
                 }
             }
-        });
-        
-        pais();
-        if(nivel == "Medio"){
-            recortarImagenMedio()
+                
+            
         }
     }
 
-    function focusinputvacio() {
-        // Te lleva al primer input vacío para escribir
-        let primerinputvacio = 0;
-        
-            while (inputs[primerinputvacio]?.readOnly) {
-                if(primerinputvacio < inputs.length){
-                    primerinputvacio++;
+    function pais() {
+        // Obtengo los datos de todos los paises
+        m.request({
+            method: "GET",
+            url: "/api/paises"
+        })
+        .then(paises => {
+            for (let i = 0; i < paises.length; i++) {
+                if (paises[i].id_pais == numaleatorio) {
+                    nombrepais = paises[i].nombre.toUpperCase()
+                    idpais = paises[i].id_pais
+                    capitalpais = paises[i].capital
+                    habitantespais = paises[i].habitantes
+                    monumentopais = paises[i].monumento
+                    siluetapais = paises[i].silueta
+                    famosopais = paises[i].persona_Famosa
+                    banderapais = paises[i].bandera
+                    console.log(nombrepais)
                 }
             }
-            inputs[primerinputvacio]?.focus();
+
+            
+            //Compruebo si está repetido el pais para mostrarlo
+            if (nombrepais in paisesmostrados) {
+                numaleatorio = Math.floor(Math.random() * 50) + 1;
+                pais();
+            } else {
+                if(nivel == "Medio"){
+                    recortarImagenMedio()
+                }
+                focusInputVacio();
+                
         
+                
+                
+        
+            }
+            }).catch(function (e) {
+                console.log("ERROR" + e.message);
+            });
         
     }
 
-    function pista() {
-        // Si pulsas al botón pista te muestra una letra al azar en el nombre del país
-        let letraaleatoria;
-
-        if (resuelto != true) {
-            if (pistasutilizadas < 2) {
-                pistasutilizadas++;
-                do {
-                    letraaleatoria = Math.floor(Math.random() * nombrepais.length);
-                } while (inputs[letraaleatoria].readOnly);
-
-                inputs[letraaleatoria].value = nombrepais[letraaleatoria];
-                inputs[letraaleatoria].style.backgroundColor = "gray";
-                inputs[letraaleatoria].readOnly = true;
-                letrasUsuario[letraaleatoria] = nombrepais[letraaleatoria]
+    function comprobarClicked() {
+        // Si haces más de 5 fallos pierdes la partida
+        if (contador < 5) {
+            contador++;
+            comprobar();
+        } else if (contador == 5) {
+            comprobar();
+            if (resuelto == false) {
+                fin = true;
+                modalperder = true
             }
+        }
+    }
+    
+    function comprobar() {
+        nombrepais.split("").map((letra,index) => {
+            if(letra == "_"){
+                console.log("letra " + letra)
+                letrasUsuario[index] = letra
+            }
+            respuesta += letrasUsuario[index]
+        })
+        comprobarRespuesta(respuesta);
+        // Comprueba todas las letras para ver cuales están en la posición correcta
+        for (let i = 0; i < letrasUsuario.length; i++) {
+            if (letrasUsuario[i] != nombrepais[i]) {
+                console.log("aqui")
+                inputs[i].value = ""
+                letrasUsuario[i] = ""
+            }
+            else {
+                inputs[i].style.backgroundColor = "green"
+                inputs[i].readOnly = true;
+
+            }
+        }
+
+        
+        // Si está mal puesto el nombre por el usuario te resta puntos
+        if (resuelto != true) {
+            
+            puntosporronda -= 10;
+            if(nivel == "Medio"){
+                pintarBanderaMedio()
+            }
+            else if(nivel == "Difícil"){
+                pintarImagenDificil()
+            }
+            respuesta = ""
+        }
+        else{
+            
+            if(nivel == "Medio"){
+                pintarBanderaMedio()
+            }
+        }
+
+        if (Object.keys(paisesmostrados).length == 5) {
+            console.log(paisesmostrados.length)
+            fin = true;
+            almacenarPartida();
+            almacenarRecord();
+            modalganar = true
+        }
+        
+        
+    }
+    
+    function comprobarRespuesta(respuesta) {
+        console.log("Respuesta" + respuesta)
+        if (nombrepais == respuesta) {
+            paisesmostrados[nombrepais] = { "Adivinado": true, "Puntuaje": puntosporronda };
+            console.log(paisesmostrados)
+            resuelto = true;
+            puntos += puntosporronda;
+        }
+    }
+
+    function FuncionalidadNivel(){
+        pais();
+        if(nivel == "Medio"){
+            recortarImagenMedio()
         }
     }
 
@@ -1158,168 +1268,6 @@ function Nivel () {
         img.src = `./img/banderas/${banderapais}`
     }
 
-    function siguientenivel() {
-        // Reinicia las variable y muestra otro país
-        if (resuelto == true) {
-            
-            numaleatorio = Math.floor(Math.random() * 50) + 1;
-            puntosporronda = 60;
-            contador = 0;
-            letrasUsuario = []
-            pistasutilizadas = 0;
-            resuelto = false;
-            respuesta = ""
-            inputs.map(i => {
-                i.value = ""
-                i.style.backgroundColor = "transparent"
-                i.readOnly = false
-                console.log(i.value)
-            })
-            if(nivel == "Difícil"){
-                imgcapital.innerText = ""
-                imgfamoso.style.backgroundImage = 'url("")'
-                imghabitantes.innerText = ""
-                imgsilueta.style.backgroundImage = 'url("")'
-                imgmonumento.style.backgroundImage = 'url("")'
-            }
-            numimagen = 0
-            pais();
-            if(nivel == "Medio"){
-                for (let i = 0; i < 6; i++) {
-                    imagenes[i].style.backgroundImage = 'url("")'
-                }
-            }
-                
-            
-        }
-    }
-
-    function pais() {
-        // Obtengo los datos de todos los paises
-        m.request({
-            method: "GET",
-            url: "/api/paises"
-        })
-        .then(paises => {
-            for (let i = 0; i < paises.length; i++) {
-                if (paises[i].id_pais == numaleatorio) {
-                    nombrepais = paises[i].nombre.toUpperCase()
-                    idpais = paises[i].id_pais
-                    capitalpais = paises[i].capital
-                    habitantespais = paises[i].habitantes
-                    monumentopais = paises[i].monumento
-                    siluetapais = paises[i].silueta
-                    famosopais = paises[i].persona_Famosa
-                    banderapais = paises[i].bandera
-                    console.log(nombrepais)
-                }
-            }
-
-            
-            //Compruebo si está repetido el pais para mostrarlo
-            if (nombrepais in paisesmostrados) {
-                numaleatorio = Math.floor(Math.random() * 50) + 1;
-                pais();
-            } else {
-                if(nivel == "Medio"){
-                    recortarImagenMedio()
-                }
-                focusinputvacio();
-                
-        
-                
-                
-        
-            }
-            }).catch(function (e) {
-                console.log("ERROR" + e.message);
-            });
-        
-    }
-
-    function perder() {
-        // Si haces más de 5 fallos pierdes la partida
-        if (contador < 5) {
-            contador++;
-            comprobar();
-        } else if (contador == 5) {
-            comprobar();
-            if (resuelto == false) {
-                fin = true;
-                modalperder = true
-            }
-        }
-    }
-    
-    function comprobar() {
-        nombrepais.split("").map((letra,index) => {
-            if(letra == "_"){
-                console.log("letra " + letra)
-                letrasUsuario[index] = letra
-            }
-            respuesta += letrasUsuario[index]
-        })
-        comprobarrespuesta(respuesta);
-        // Comprueba todas las letras para ver cuales están en la posición correcta
-        for (let i = 0; i < letrasUsuario.length; i++) {
-            if (letrasUsuario[i] != nombrepais[i]) {
-                console.log("aqui")
-                inputs[i].value = ""
-                letrasUsuario[i] = ""
-            }
-            else {
-                inputs[i].style.backgroundColor = "green"
-                inputs[i].readOnly = true;
-
-            }
-        }
-
-        
-        // Si está mal puesto el nombre por el usuario te resta puntos
-        if (resuelto != true) {
-            
-            puntosporronda -= 10;
-            if(nivel == "Medio"){
-                pintarBanderaMedio()
-            }
-            else if(nivel == "Difícil"){
-                pintarImagenDificil()
-            }
-            respuesta = ""
-        }
-        else{
-            // letrasUsuario.map((letra, index) =>{
-            //     inputs[index].value = letra
-            //     inputs[index].style.backgroundColor = "green"
-            //     console.log(inputs[index].style.backgroundColor)
-            // })
-            
-            if(nivel == "Medio"){
-                pintarBanderaMedio()
-            }
-        }
-
-        if (Object.keys(paisesmostrados).length == 5) {
-            console.log(paisesmostrados.length)
-            fin = true;
-            almacenarPartida();
-            almacenarRecord();
-            modalganar = true
-        }
-        
-        
-    }
-    
-    function comprobarrespuesta(respuesta) {
-        console.log("Respuesta" + respuesta)
-        if (nombrepais == respuesta) {
-            paisesmostrados[nombrepais] = { "Adivinado": true, "Puntuaje": puntosporronda };
-            console.log(paisesmostrados)
-            resuelto = true;
-            puntos += puntosporronda;
-        }
-    }
-
     function almacenarPartida() {
         let paisesacertados = ""
         Object.keys(paisesmostrados).map(pais => {
@@ -1390,6 +1338,41 @@ function Nivel () {
             })
         
     }
+
+    function focusInputVacio() {
+        // Te lleva al primer input vacío para escribir
+        let primerinputvacio = 0;
+        
+            while (inputs[primerinputvacio]?.readOnly) {
+                if(primerinputvacio < inputs.length){
+                    primerinputvacio++;
+                }
+            }
+            inputs[primerinputvacio]?.focus();
+        
+        
+    }
+
+    function pista() {
+        // Si pulsas al botón pista te muestra una letra al azar en el nombre del país
+        let letraaleatoria;
+
+        if (resuelto != true) {
+            if (pistasutilizadas < 2) {
+                pistasutilizadas++;
+                do {
+                    letraaleatoria = Math.floor(Math.random() * nombrepais.length);
+                } while (inputs[letraaleatoria].readOnly);
+
+                inputs[letraaleatoria].value = nombrepais[letraaleatoria];
+                inputs[letraaleatoria].style.backgroundColor = "gray";
+                inputs[letraaleatoria].readOnly = true;
+                letrasUsuario[letraaleatoria] = nombrepais[letraaleatoria]
+            }
+        }
+    }
+
+    
 
 
     

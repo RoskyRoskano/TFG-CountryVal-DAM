@@ -9,5 +9,4 @@ public class CountryValApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CountryValApplication.class, args);
 	}
-
 }
