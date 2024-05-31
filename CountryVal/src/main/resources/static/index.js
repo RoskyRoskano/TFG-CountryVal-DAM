@@ -7,6 +7,9 @@ let rankingglobal = []
 let urls = []
 let imagenes = []
 let key = "jGzIDSFwd34.dhgu38d_>hfud38hdbthdv"
+let nivel = ""
+let partidas = []
+let puntos = 0
 
 recuperarUsuarioLocalStorage()
 
@@ -17,6 +20,8 @@ function Inicio(){
     let editarEmail = ""
     let editarUsuario = ""
     let editarContrasena = ""
+    let historial = false
+
     return {
         oninit:()=>{
             consultarRecord()
@@ -40,28 +45,27 @@ function Inicio(){
                                 m("h4", 
                                     {"class":"puntosfacil"},
                                     "Nivel Fácil", 
-                                        m("p", recordsUsuario.recordfacil+ " Puntos")
+                                        m("p", (recordsUsuario.recordfacil == undefined ? 0 : recordsUsuario.recordfacil) + " Puntos")
                                 ),
                                 m("h4", 
                                     {"class":"puntosmedio"},
                                     "Nivel Medio", 
-                                        m("p", recordsUsuario.recordmedio+ " Puntos")
+                                        m("p", (recordsUsuario.recordmedio  == undefined ? 0 : recordsUsuario.recordmedio) + " Puntos")
                                 ),
                                 m("h4", 
                                     {"class":"puntosdificil"},
                                     "Nivel Difícil", 
-                                        m("p", recordsUsuario.recorddificil+ " Puntos")
+                                        m("p", (recordsUsuario.recorddificil  == undefined ? 0 : recordsUsuario.recorddificil) + " Puntos")
                                 ),
                                 m("h4", 
                                     {"class":"puntostotales"},
                                     "Récord Global", 
-                                        m("p", recordsUsuario.totalrecord + " Puntos")
+                                        m("p", (recordsUsuario.totalrecord == undefined ? 0 : recordsUsuario.totalrecord) + " Puntos")
                                 ),
                                 m("br"),
                                 m("button", {
                                     onclick:()=>{
                                         editar = !editar
-                                        //consultarUsuario()
                                     },
                                     "class":"editarperfil boton",
                                     style: {
@@ -174,10 +178,6 @@ function Inicio(){
                                         "Atajos de teclado:"
                                     ),
                                     m("br"),
-                                    " - Espacio: Siguiente Nivel ",
-                                    m("br"),
-                                    " - Enter: Comprobar ",
-                                    m("br"),
                                     " - Retroceso: Borrar letras"
                                     ]
                                 ),
@@ -191,6 +191,17 @@ function Inicio(){
                         m("div", {"class":"three wide column"},
                             m("div", {"class":"ui center aligned segment"},
                             [
+                                m("button", {
+                                    onclick:()=>{
+                                        consultarPartidas(emailUsuario)
+                                        historial = !historial
+                                    },
+                                    "class":"editarperfil boton",
+                                    style: {
+                                        width: "100%"
+                                    }},
+                                    "Historial Partidas"
+                                ),
                                 m("h3",
                                 "Ranking Global"
                                 ),
@@ -273,6 +284,7 @@ function Inicio(){
                                     "class":"btneditar boton",
                                     onclick: ()=>{
                                         actualizarUsuario(editarEmail.value, editarUsuario.value, editarContrasena.value)
+                                        editar = !editar
                                     }
                                 
                                 },
@@ -281,6 +293,37 @@ function Inicio(){
                             ]
                         )
                    )
+                   : null,
+                   historial
+                   ?  m("div", {
+                        "class":"modal","id":"ventanaModalUsuario"},
+                        m("div", {"class":"modal-content", "id":"modal-partidas", style:{width: "80% !important"}},
+                            [
+                                m("div", {
+                                    "class":"cerrar",
+                                    style: {cursor: "pointer"},
+                                    onclick:()=>{historial = !historial}
+                                    },
+                                    m.trust("&times;")
+                                ),
+                                m("table", {style: {width: "80% !important"}},
+                                    m("th", "Número Partida"),
+                                    m("th", "PaisesAcertados"),
+                                    m("th", "Puntuacion"),
+                                    m("th", "Nivel"),
+                                    
+                                    partidas.map(partida => 
+                                        m("tr",{style: {"border-bottom": "1px black !important", border: "1px black"}}, 
+                                            m("td",{style: {"border-bottom": "1px black !important", border: "1px black"}}, partida.id_partida),
+                                            m("td", partida.paisesacertados),
+                                            m("td", partida.puntuacion),
+                                            m("td", partida.nivel)
+                                        )
+                                    )
+                                )
+                            ]
+                        )
+                        )
                    : null
             ]
     }
@@ -294,6 +337,10 @@ function Login(){
     let inputemailregistro
     let inputusuarioregistro
     let inputcontrasenaregistro
+    let mensajeerrorregistro = ""
+    let mensajeerroriniciosesion = ""
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regexContrasena = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     return {
         view:()=>
             [
@@ -344,18 +391,33 @@ function Login(){
                                             }),
                                                 m("br"),
                                                 m("br"),
-                                            m("a", {
+                                            m("button", {
                                                 "class":"btn-iniciar boton",
                                                 "name":"btn-iniciar",
                                                 onclick:()=>{
-                                                    InicioSesion(inputemail.value, inputcontrasena.value)
+                                                    if(regexEmail.test(inputemail.value) && regexContrasena.test(inputcontrasena.value)){
+                                                        mensajeerroriniciosesion = ""
+                                                        InicioSesion(inputemail.value, inputcontrasena.value)
+                                                        mensajeerroriniciosesion = "El correo o la contraseña son incorrectos"
+                                                    }
+                                                    else{
+                                                        mensajeerroriniciosesion = "El correo o la contraseña son incorrectos"
+                                                    }
+                                                    
                                                 }
                                             }, 
                                                 "Iniciar Sesión"
                                             ),
                                                 m("br"),
                                                 m("br"),
-                                            m("p", {"class":"respuestalogin"})
+                                            m("p", {
+                                                "class":"respuestalogin",
+                                                style: {
+                                                    color: mensajeerroriniciosesion == "El correo o la contraseña son incorrectos" ? "red" : "green"
+                                                }
+                                            },
+                                                mensajeerroriniciosesion
+                                            )
                                         ]
                                     ),
                                     m("p", {"class":"registrar"},
@@ -431,7 +493,19 @@ function Login(){
                             m("p", {"class":"respuestaregistrar"}),
                             m("button", {
                                 onclick:()=>{
-                                    insertarUsuario(inputemailregistro.value, inputusuarioregistro.value, inputcontrasenaregistro.value)
+                                    
+                                    let usuarionuevo = true
+                                    if(regexEmail.test(inputemailregistro.value) && regexContrasena.test(inputcontrasenaregistro.value) && inputemailregistro.value!=undefined && inputusuarioregistro.value!=undefined && inputcontrasenaregistro.value!=undefined){
+                                        mensajeerroriniciosesion = ""
+                                        insertarUsuario(inputemailregistro.value, inputusuarioregistro.value, inputcontrasenaregistro.value)
+                                        almacenarRecord(usuarionuevo, inputemailregistro.value)
+                                        mensajeerroriniciosesion = "Te has registrado con éxito!!"
+                                    }
+                                    else{
+                                        mensajeerroriniciosesion = "El correo o la contraseña son incorrectos"
+                                    }
+                                    registro = false
+                                    
                                 },
                                 "class":"btnregistrar boton"
                             }, 
@@ -449,7 +523,6 @@ function Login(){
 }
 
 function Nivel () {
-    let nivel = ""
     let letrasUsuario = [];
     let respuesta="";
     let nombrepais;
@@ -466,7 +539,6 @@ function Nivel () {
     let puntosporronda = 60;
     let paisesmostrados = {};
     let inputs = []
-    let puntos = 0
     let paisseleccionado;
     let pistasutilizadas = 0;
     let numaleatorio = Math.floor(Math.random() * 50) + 1;
@@ -1298,47 +1370,6 @@ function Nivel () {
         })
     }
 
-    function almacenarRecord() {
-            let puntostotales = 0
-            let puntosfacil = recordsUsuario.recordfacil
-            let puntosmedio = recordsUsuario.recordmedio
-            let puntosdificil = recordsUsuario.recorddificil
-            let recordpuntos = recordsUsuario.totalrecord
-
-            if(nivel == "Fácil"){
-                puntostotales = puntos + puntosmedio + puntosdificil
-            }
-            else if(nivel == "Medio"){
-                puntostotales = puntos + puntosfacil + puntosdificil
-            }
-            else{
-                puntostotales = puntos + puntosmedio + puntosfacil
-            }
-            m.request({
-                method: "PUT",
-                url:'/api/records/' + emailUsuario,
-                body: {
-                    email: emailUsuario,
-                    recordfacil: puntos > puntosfacil && nivel =="Fácil" ? puntos : puntosfacil,
-                    recordmedio: puntos > puntosmedio && nivel =="Medio" ? puntos : puntosmedio,
-                    recorddificil: puntos > puntosdificil && nivel =="Difícil" ? puntos : puntosdificil,
-                    totalrecord: puntostotales > recordpuntos ? puntostotales : recordpuntos
-                },
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(function(response) {
-                console.log("Record guardada:", response);
-                // Limpiar el formulario después de guardar
-                
-            })
-            .catch(function(error) {
-                console.log("Error al guardar el record:", error);
-            })
-        
-    }
-
     function focusInputVacio() {
         // Te lleva al primer input vacío para escribir
         let primerinputvacio = 0;
@@ -1405,7 +1436,7 @@ m.route(document.body, "/", routes)
 function InicioSesion(email, contrasena) {
     m.request({
         method: "GET",
-        url:'/api/usuarios/'+email
+        url:'/api/usuarios/'+ email
     })
     .then(usuarios => {
         usuarios.contrasena = desencriptarContrasena(usuarios.contrasena)
@@ -1417,11 +1448,10 @@ function InicioSesion(email, contrasena) {
             location.href = "./index.html#!inicio"
         }
         else {
-            console.log("no")
             return false
         }
     })
-    .catch(error => console.error('Error al obtener usuario:', error));
+    .catch(error => console.log('Error al obtener usuario:', error));
 }
 
 function insertarUsuario(email, nombreusuario, contrasena){
@@ -1450,6 +1480,73 @@ function insertarUsuario(email, nombreusuario, contrasena){
     })
 }
 
+function almacenarRecord(usuarionuevo, email) {
+
+    if(usuarionuevo){
+        m.request({
+            method: "POST",
+            url:'/api/records',
+            body: {
+                email: email,
+                recordfacil: 0,
+                recordmedio: 0,
+                recorddificil: 0,
+                totalrecord: 0
+            },
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(function(response) {
+            console.log("Record guardada:", response);
+            // Limpiar el formulario después de guardar
+            
+        })
+        .catch(function(error) {
+            console.log("Error al guardar el record:", error);
+        })
+    }
+    else {
+        let puntostotales = 0
+    let puntosfacil = recordsUsuario.recordfacil 
+    let puntosmedio = recordsUsuario.recordmedio
+    let puntosdificil = recordsUsuario.recorddificil
+    let recordpuntos = recordsUsuario.totalrecord
+
+    if(nivel == "Fácil"){
+        puntostotales = puntos + puntosmedio + puntosdificil
+    }
+    else if(nivel == "Medio"){
+        puntostotales = puntos + puntosfacil + puntosdificil
+    }
+    else{
+        puntostotales = puntos + puntosmedio + puntosfacil
+    }
+    m.request({
+        method: "PUT",
+        url:'/api/records/' + emailUsuario,
+        body: {
+            email: emailUsuario,
+            recordfacil: puntos > puntosfacil && nivel =="Fácil" ? puntos : puntosfacil,
+            recordmedio: puntos > puntosmedio && nivel =="Medio" ? puntos : puntosmedio,
+            recorddificil: puntos > puntosdificil && nivel =="Difícil" ? puntos : puntosdificil,
+            totalrecord: puntostotales > recordpuntos ? puntostotales : recordpuntos
+        },
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(function(response) {
+        console.log("Record guardada:", response);
+        // Limpiar el formulario después de guardar
+        
+    })
+    .catch(function(error) {
+        console.log("Error al guardar el record:", error);
+    })
+    }
+}
+
 function actualizarUsuario(email, nombreusuario){
     console.log(email, nombreusuario, contrasenaUsuario)
     contrasenaUsuario = encriptarContrasena(contrasenaUsuario)
@@ -1466,16 +1563,10 @@ function actualizarUsuario(email, nombreusuario){
         }
     })
     .then(function(response) {
-        console.log("Usuario actualizado:", response);
-        // Limpiar el formulario después de guardar
     })
     .catch(function(error) {
         console.log("Error al guardar el usuario:", error);
     })
-}
-
-function insertarPuntuacion(){
-
 }
 
 function consultarRecord(){
@@ -1529,23 +1620,56 @@ function rankingGlobal(){
         usuarios.map(usuario => {
             m.request({
                 method: "GET",
-                url:'/api/records/' + usuario.email,
+                url:'/api/records',
                 headers: {
                     "Content-Type": "application/json"
                 }
             })
             .then(records => {
-                console.log(records)
-                rankingglobal.push({nombreusuario: usuario.nombreusuario, record: records.totalrecord})
+                records.map(record => {
+                    if(record.email == usuario.email){
+                        m.request({
+                            method: "GET",
+                            url:'/api/records/' + usuario.email,
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        })
+                        .then(recordusuario => {
+                            
+                            rankingglobal.push({nombreusuario: usuario.nombreusuario, record: recordusuario.totalrecord})
+                        })
+                        .catch(function(error) {
+                            console.log("Error al guardar el usuario:", error);
+                        })
+                    }
+                })
+                
             })
             .catch(function(error) {
                 console.log("Error al guardar el usuario:", error);
             })
         })
+
     })
     .catch(function(error) {
         console.log("Error al guardar el usuario:", error);
     })
+}
+
+function consultarPartidas(email){
+    m.request({
+        method: "GET",
+        url:'/api/partidas'
+    })
+    .then(historialpartidas => {
+        historialpartidas.map(partida => {
+            if(partida.email == email){
+                partidas.push(partida)
+            }
+        })
+    })
+    .catch(error => console.log('Error al obtener usuario:', error));
 }
 
 function encriptarContrasena(contrasena){
